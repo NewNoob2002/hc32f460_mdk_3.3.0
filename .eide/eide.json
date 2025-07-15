@@ -106,6 +106,15 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "newlibc",
+            "files": [
+              {
+                "path": "platform/newlibc/newlib.c"
+              }
+            ],
+            "folders": []
           }
         ]
       },
