@@ -112,6 +112,8 @@ public:
     {
         return true;
     }
+
+    inline bool is_initialized() const { return _is_initialized; }
   private:
     usart_config_t *usart_config;
 

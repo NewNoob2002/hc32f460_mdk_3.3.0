@@ -15,8 +15,8 @@ usart_config_t USART1_config = {
     .peripheral = {
         .register_base = CM_USART1,
         .clock_id = PWC_FCG1_USART1,
-        .tx_pin_function = Func_Usart1_Tx,
-        .rx_pin_function = Func_Usart1_Rx,
+        .tx_pin_function = GPIO_FUNC_32,
+        .rx_pin_function = GPIO_FUNC_33,
     },
     .interrupts = {
         .rx_data_full = {
@@ -53,8 +53,8 @@ usart_config_t USART2_config = {
     .peripheral = {
         .register_base = CM_USART2,
         .clock_id = PWC_FCG1_USART2,
-        .tx_pin_function = Func_Usart2_Tx,
-        .rx_pin_function = Func_Usart2_Rx,
+        .tx_pin_function = GPIO_FUNC_36,
+        .rx_pin_function = GPIO_FUNC_37,
     },
     .interrupts = {
         .rx_data_full = {
@@ -91,8 +91,8 @@ usart_config_t USART3_config = {
     .peripheral = {
         .register_base = CM_USART3,
         .clock_id = PWC_FCG1_USART3,
-        .tx_pin_function = Func_Usart3_Tx,
-        .rx_pin_function = Func_Usart3_Rx,
+        .tx_pin_function = GPIO_FUNC_32,
+        .rx_pin_function = GPIO_FUNC_33,
     },
     .interrupts = {
         .rx_data_full = {
@@ -129,8 +129,8 @@ usart_config_t USART4_config = {
     .peripheral = {
         .register_base = CM_USART4,
         .clock_id = PWC_FCG1_USART4,
-        .tx_pin_function = Func_Usart4_Tx,
-        .rx_pin_function = Func_Usart4_Rx,
+        .tx_pin_function = GPIO_FUNC_36,
+        .rx_pin_function = GPIO_FUNC_37,
     },
     .interrupts = {
         .rx_data_full = {

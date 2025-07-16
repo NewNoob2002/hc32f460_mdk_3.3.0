@@ -14,6 +14,16 @@ extern "C" {
 #endif
 int usart1_write(uint8_t *ch, int len)
 {
+    // 添加安全检查，避免在Serial未初始化时调用
+    if (ch == NULL || len <= 0) {
+        return 0;
+    }
+    
+    // 检查Serial是否已初始化
+    if (!Serial.is_initialized()) {
+        return 0;  // 如果未初始化，直接返回
+    }
+    
     return Serial.write(ch, len);
 }
 #ifdef __cplusplus
