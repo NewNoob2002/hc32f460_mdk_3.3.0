@@ -107,7 +107,7 @@ typedef enum {
 #define __USED                        __attribute__((used))
 #endif /* __USED */
 
-#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050) || defined (__clang__)
 #ifndef __WEAKDEF
 #define __WEAKDEF                   __attribute__((weak))
 #endif /* __WEAKDEF */

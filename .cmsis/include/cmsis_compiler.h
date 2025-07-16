@@ -43,7 +43,7 @@
   /*
  * Arm Compiler above 6.10.1 (armclang)
  */
-#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6100100)
+#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6100100) || defined (__clang__)
   #include "cmsis_armclang.h"
 
 

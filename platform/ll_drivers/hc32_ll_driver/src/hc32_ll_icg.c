@@ -77,7 +77,7 @@
  * @brief ICG parameters configuration
  */
 
-#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050) || defined (__clang__)
 __USED const uint32_t u32ICGValue[] __attribute__((section(ICG_START_ADDR_AC6))) =
 #elif defined (__GNUC__) && !defined (__CC_ARM)
 __USED const uint32_t u32ICGValue[] __attribute__((section(".icg_sec"))) =

@@ -314,7 +314,8 @@
     "debug": {
       "excludeList": [
         "<virtual_root>/FreeRTOS",
-        "<virtual_root>/Arduino/drivers/timera/timera_config.cpp"
+        "<virtual_root>/Arduino/drivers/timera/timera_config.cpp",
+        "<virtual_root>/platform/newlibc/newlib.s"
       ],
       "toolchain": "AC6",
       "compileConfig": {
@@ -465,7 +466,8 @@
           "HC32F460",
           "USE_DDL_DRIVER",
           "__DEBUG",
-          "__CORE_DEBUG"
+          "__CORE_DEBUG",
+          "__FPU_PRESENT=1"
         ]
       },
       "builderOptions": {

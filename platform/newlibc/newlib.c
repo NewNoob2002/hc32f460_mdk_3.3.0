@@ -28,7 +28,12 @@ struct stat {
 int usart1_write(uint8_t *ch, int len);
 
 // AC6编译器printf重定向实现
-#ifdef __ARMCC_VERSION
+#if defined(__ARMCC_VERSION) || defined(__clang__)
+
+void __use_no_semihosting(void)
+{
+    __asm(".global __use_no_semihosting");
+}
 
 /**
  * @brief 重定向_write函数到串口输出

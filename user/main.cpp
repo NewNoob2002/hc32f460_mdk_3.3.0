@@ -3,7 +3,6 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <hc32_ll.h>
-#include <stdio.h>
 // #include "FreeRTOS.h"
 // #include "task.h"
 
