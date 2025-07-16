@@ -60,7 +60,7 @@ extern "C"
    *
    * \note the pin must be configured as OUTPUT_PWM beforehand.
    */
-  extern void analogWriteScaled(gpio_pin_t ulPin, uint32_t ulValue, uint32_t ulScale);
+  extern void analogWriteScaled(gpio_pin_t ulPin, uint32_t ulValue, uint32_t ulScale = 100);
 
   /*
    * \brief Reads the value from the specified analog pin.

@@ -2,96 +2,96 @@
 
 timera_config_t TIMERA1_config = {
     .peripheral = {
-        .register_base = M4_TMRA1,
-        .clock_id = PWC_FCG2_PERIPH_TIMA1,
+        .register_base = CM_TMRA_1,
+        .clock_id = FCG2_PERIPH_TMRA_1,
     },
     .overflow_interrupt = {
-        .interrupt_source = INT_TMRA1_OVF,
+        .interrupt_source = INT_SRC_TMRA_1_OVF,
     },
     .underflow_interrupt = {
-        .interrupt_source = INT_TMRA1_UDF,
+        .interrupt_source = INT_SRC_TMRA_1_UDF,
     },
     .compare_interrupt = {
-        .interrupt_source = INT_TMRA1_CMP,
+        .interrupt_source = INT_SRC_TMRA_1_CMP,
     },
 };
 
 timera_config_t TIMERA2_config = {
     .peripheral = {
-        .register_base = M4_TMRA2,
-        .clock_id = PWC_FCG2_PERIPH_TIMA2,
+        .register_base = CM_TMRA_2,
+        .clock_id = FCG2_PERIPH_TMRA_2,
     },
     .overflow_interrupt = {
-        .interrupt_source = INT_TMRA2_OVF,
+        .interrupt_source = INT_SRC_TMRA_2_OVF,
     },
     .underflow_interrupt = {
-        .interrupt_source = INT_TMRA2_UDF,
+        .interrupt_source = INT_SRC_TMRA_2_UDF,
     },
     .compare_interrupt = {
-        .interrupt_source = INT_TMRA2_CMP,
+        .interrupt_source = INT_SRC_TMRA_2_CMP,
     },
 };
 
 timera_config_t TIMERA3_config = {
     .peripheral = {
-        .register_base = M4_TMRA3,
-        .clock_id = PWC_FCG2_PERIPH_TIMA3,
+        .register_base = CM_TMRA_3,
+        .clock_id = FCG2_PERIPH_TMRA_3,
     },
     .overflow_interrupt = {
-        .interrupt_source = INT_TMRA3_OVF,
+        .interrupt_source = INT_SRC_TMRA_3_OVF,
     },
     .underflow_interrupt = {
-        .interrupt_source = INT_TMRA3_UDF,
+        .interrupt_source = INT_SRC_TMRA_3_UDF,
     },
     .compare_interrupt = {
-        .interrupt_source = INT_TMRA3_CMP,
+        .interrupt_source = INT_SRC_TMRA_3_CMP,
     },
 };
 
 timera_config_t TIMERA4_config = {
     .peripheral = {
-        .register_base = M4_TMRA4,
-        .clock_id = PWC_FCG2_PERIPH_TIMA4,
+        .register_base = CM_TMRA_4,
+        .clock_id = FCG2_PERIPH_TMRA_4,
     },
     .overflow_interrupt = {
-        .interrupt_source = INT_TMRA4_OVF,
+        .interrupt_source = INT_SRC_TMRA_4_OVF,
     },
     .underflow_interrupt = {
-        .interrupt_source = INT_TMRA4_UDF,
+        .interrupt_source = INT_SRC_TMRA_4_UDF,
     },
     .compare_interrupt = {
-        .interrupt_source = INT_TMRA4_CMP,
+        .interrupt_source = INT_SRC_TMRA_4_CMP,
     },
 };
 
 timera_config_t TIMERA5_config = {
     .peripheral = {
-        .register_base = M4_TMRA5,
-        .clock_id = PWC_FCG2_PERIPH_TIMA5,
+        .register_base = CM_TMRA_5,
+        .clock_id = FCG2_PERIPH_TMRA_5,
     },
     .overflow_interrupt = {
-        .interrupt_source = INT_TMRA5_OVF,
+        .interrupt_source = INT_SRC_TMRA_5_OVF,
     },
     .underflow_interrupt = {
-        .interrupt_source = INT_TMRA5_UDF,
+        .interrupt_source = INT_SRC_TMRA_5_UDF,
     },
     .compare_interrupt = {
-        .interrupt_source = INT_TMRA5_CMP,
+        .interrupt_source = INT_SRC_TMRA_5_CMP,
     },
 };
 
 timera_config_t TIMERA6_config = {
     .peripheral = {
-        .register_base = M4_TMRA6,
-        .clock_id = PWC_FCG2_PERIPH_TIMA6,
+        .register_base = CM_TMRA_6,
+        .clock_id = FCG2_PERIPH_TMRA_6,
     },
     .overflow_interrupt = {
-        .interrupt_source = INT_TMRA6_OVF,
+        .interrupt_source = INT_SRC_TMRA_6_OVF,
     },
     .underflow_interrupt = {
-        .interrupt_source = INT_TMRA6_UDF,
+        .interrupt_source = INT_SRC_TMRA_6_UDF,
     },
     .compare_interrupt = {
-        .interrupt_source = INT_TMRA6_CMP,
+        .interrupt_source = INT_SRC_TMRA_6_CMP,
     },
 };

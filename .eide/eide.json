@@ -156,6 +156,9 @@
           },
           {
             "path": "Arduino/avr/dtostrf.c"
+          },
+          {
+            "path": "Arduino/wiring_analog.cpp"
           }
         ],
         "folders": [
@@ -314,7 +317,6 @@
     "debug": {
       "excludeList": [
         "<virtual_root>/FreeRTOS",
-        "<virtual_root>/Arduino/drivers/timera/timera_config.cpp",
         "<virtual_root>/platform/newlibc/newlib.s"
       ],
       "toolchain": "AC6",

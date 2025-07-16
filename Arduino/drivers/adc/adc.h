@@ -55,7 +55,7 @@ extern "C"
      * @param device ADC device configuration
      * @note requires adc_device_init() to be called first
      */
-    void adc_await_conversion_completed(const adc_device_t *device);
+    void adc_await_conversion_completed(const adc_device_t *device, uint32_t timeOut = 1000);
 
     /**
      * @brief read asynchronous conversion result

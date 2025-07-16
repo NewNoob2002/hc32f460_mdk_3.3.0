@@ -14,12 +14,12 @@
  * @note e.g. M4_TMRA1 -> 1
  */
 #define TIMERA_REG_TO_X(reg) \
-    reg == M4_TMRA1   ? 1    \
-    : reg == M4_TMRA2 ? 2    \
-    : reg == M4_TMRA3 ? 3    \
-    : reg == M4_TMRA4 ? 4    \
-    : reg == M4_TMRA5 ? 5    \
-    : reg == M4_TMRA6 ? 6    \
+    reg == CM_TMRA_1   ? 1    \
+    : reg == CM_TMRA_2 ? 2    \
+    : reg == CM_TMRA_3 ? 3    \
+    : reg == CM_TMRA_4 ? 4    \
+    : reg == CM_TMRA_5 ? 5    \
+    : reg == CM_TMRA_6 ? 6    \
                       : 0
 
 /**
@@ -34,7 +34,7 @@
  * @brief TimerA CORE_DEBUG_PRINTF wrapper
  */
 #define TIMERA_DEBUG_PRINTF(unit, channel, fmt, ...) \
-    CORE_DEBUG_PRINTF("[TimerA%dCh%d] " fmt, TIMERA_REG_TO_X((unit)->peripheral.register_base), TIMERA_CHANNEL_TO_X(channel), ##__VA_ARGS__)
+    CORE_DEBUG_PRINTF("[TimerA%d_CH%d] " fmt, TIMERA_REG_TO_X((unit)->peripheral.register_base), TIMERA_CHANNEL_TO_X(channel), ##__VA_ARGS__)
 
 //
 // utility functions
@@ -51,8 +51,8 @@
 inline bool timera_get_assignment(
     gpio_pin_t pin,
     timera_config_t *&unit_config,
-    en_timera_channel_t &output_channel,
-    en_port_func_t &output_function)
+    uint8_t &output_channel,
+    uint8_t &output_function)
 {
     // ensure pin is valid
     ASSERT_GPIO_PIN_VALID(pin, "timera_get_assignment", return false);
@@ -83,20 +83,20 @@ inline bool timera_get_assignment(
     // get pin output channel
     // channel is 0 <= channel <= 7, 0 is channel 1
     CORE_ASSERT(timera_info.channel >= 0 && timera_info.channel <= 7, "timera channel assignment out-of-range", return false);
-    output_channel = static_cast<en_timera_channel_t>(timera_info.channel);
+    output_channel = static_cast<uint8_t>(timera_info.channel);
 
     // get pin output gpio function
     // function is 0 <= function <= 2, 0 is Func_Tima0
     switch (timera_info.function)
     {
     case 0:
-        output_function = Func_Tima0;
+        output_function = GPIO_FUNC_4;
         break;
     case 1:
-        output_function = Func_Tima1;
+        output_function = GPIO_FUNC_5;
         break;
     case 2:
-        output_function = Func_Tima2;
+        output_function = GPIO_FUNC_6;
         break;
     default:
         CORE_ASSERT_FAIL("timera function assignment out-of-range");
@@ -114,7 +114,7 @@ inline bool timera_get_assignment(
  * @param channel the TimerA channel
  * @return true if channel is active, false otherwise
  */
-inline bool timera_is_channel_active(timera_config_t *unit_config, const en_timera_channel_t channel)
+inline bool timera_is_channel_active(timera_config_t *unit_config, const uint8_t channel)
 {
     CORE_ASSERT(unit_config != NULL, "timera unit config is NULL", return false);
 
@@ -133,7 +133,7 @@ inline bool timera_is_channel_active(timera_config_t *unit_config, const en_time
  * @param channel the TimerA channel
  * @param is_active true to set channel as active, false to set channel as inactive
  */
-inline void timera_set_channel_active_flag(timera_config_t *unit_config, const en_timera_channel_t channel, bool is_active)
+inline void timera_set_channel_active_flag(timera_config_t *unit_config, const uint8_t channel, bool is_active)
 {
     CORE_ASSERT(unit_config != NULL, "timera unit config is NULL", return);
 
@@ -175,41 +175,67 @@ inline uint32_t timera_get_base_clock()
 /**
  * @brief number to TimerA clock divider
  */
-inline en_timera_clk_div_t timera_n_to_clk_div(uint16_t n)
+inline uint8_t timera_n_to_clk_div(uint16_t n)
 {
     switch (n)
     {
     default:
         CORE_ASSERT_FAIL("invalid timera clock divider");
     case 1:
-        return TimeraPclkDiv1;
+        return TMRA_CLK_DIV1;
     case 2:
-        return TimeraPclkDiv2;
+        return TMRA_CLK_DIV2;
     case 4:
-        return TimeraPclkDiv4;
+        return TMRA_CLK_DIV4;
     case 8:
-        return TimeraPclkDiv8;
+        return TMRA_CLK_DIV8;
     case 16:
-        return TimeraPclkDiv16;
+        return TMRA_CLK_DIV16;
     case 32:
-        return TimeraPclkDiv32;
+        return TMRA_CLK_DIV32;
     case 64:
-        return TimeraPclkDiv64;
+        return TMRA_CLK_DIV64;
     case 128:
-        return TimeraPclkDiv128;
+        return TMRA_CLK_DIV128;
     case 256:
-        return TimeraPclkDiv256;
+        return TMRA_CLK_DIV256;
     case 512:
-        return TimeraPclkDiv512;
+        return TMRA_CLK_DIV512;
     case 1024:
-        return TimeraPclkDiv1024;
+        return TMRA_CLK_DIV1024;
     }
 }
 
 /**
  * @brief TimerA clock divider to number
  */
-inline uint16_t timera_clk_div_to_n(en_timera_clk_div_t clk_div)
+inline uint16_t timera_clk_div_to_n(uint8_t clk_div)
 {
-    return 1 << static_cast<uint8_t>(clk_div);
+    switch (clk_div)
+    {
+    default:
+        CORE_ASSERT_FAIL("invalid timera clock divider");
+    case TMRA_CLK_DIV1:
+        return 1;
+    case TMRA_CLK_DIV2:
+        return 2;
+    case TMRA_CLK_DIV4:
+        return 4;
+    case TMRA_CLK_DIV8:
+        return 8;
+    case TMRA_CLK_DIV16:
+        return 16;
+    case TMRA_CLK_DIV32:
+        return 32;
+    case TMRA_CLK_DIV64:
+        return 64;
+    case TMRA_CLK_DIV128:
+        return 128;
+    case TMRA_CLK_DIV256:
+        return 256;
+    case TMRA_CLK_DIV512:
+        return 512;
+    case TMRA_CLK_DIV1024:
+        return 1024;
+    }
 }

@@ -1,12 +1,12 @@
 #pragma once
 #include <hc32_ll.h>
 
-#define TIMERA_UNIT1 M4_TMRA1
-#define TIMERA_UNIT1_CLOCK PWC_FCG2_PERIPH_TIMA1
-#define TIMERA_UNIT1_OVERFLOW_INT INT_TMRA1_OVF
+#define TIMERA_UNIT1 CM_TMRA_1
+#define TIMERA_UNIT1_CLOCK FCG2_PERIPH_TMRA_1
+#define TIMERA_UNIT1_OVERFLOW_INT INT_SRC_TMRA_1_OVF
 
 /* TIMERA channel 1 Port/Pin definition */
-#define TIMERA_UNIT1_CH_BL TimeraCh6
+#define TIMERA_UNIT1_CH_BL TMRA_CH8
 
 /**
  * @brief timerA peripheral config
@@ -16,7 +16,7 @@ struct timera_peripheral_config_t
     /**
      * @brief The base address of the timer peripheral.
      */
-    M4_TMRA_TypeDef *register_base;
+    CM_TMRA_TypeDef *register_base;
 
     /**
      * @brief the clock id of the timer peripheral.
@@ -51,7 +51,7 @@ typedef struct timera_runtime_state_t
      * @brief TimerA unit base init configuration.
      * @note NULL if not initialized.
      */
-    stc_timera_base_init_t *base_init;
+     stc_tmra_init_t *base_init;
 
     /**
      * @brief TimerA unit active channels

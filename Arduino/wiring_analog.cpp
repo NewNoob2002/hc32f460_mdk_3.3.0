@@ -1,5 +1,6 @@
 #include "wiring_analog.h"
 #include "drivers/timera/timera_pwm.h"
+#include "drivers/adc/adc.h"
 #include "core_debug.h"
 
 //
@@ -39,19 +40,19 @@ void analogReadResolution(int res)
     switch (res)
     {
     case 8:
-        ADC1_device.init_params.resolution = AdcResolution_8Bit;
+        ADC1_device.init_params.resolution = ADC_RESOLUTION_8BIT;
         break;
     case 10:
-        ADC1_device.init_params.resolution = AdcResolution_10Bit;
+        ADC1_device.init_params.resolution = ADC_RESOLUTION_10BIT;
         break;
     case 12:
-        ADC1_device.init_params.resolution = AdcResolution_12Bit;
+        ADC1_device.init_params.resolution = ADC_RESOLUTION_12BIT;
         break;
     default:
         CORE_ASSERT_FAIL("analogReadResolution: resolution must be 8, 10 or 12")
 
         // fallback to 10 bit
-        ADC1_device.init_params.resolution = AdcResolution_10Bit;
+        ADC1_device.init_params.resolution = ADC_RESOLUTION_10BIT;
         break;
     }
 }
@@ -78,8 +79,8 @@ void analogWriteScaled(gpio_pin_t ulPin, uint32_t ulValue, uint32_t ulScale)
 {
     // get timer assignment for pin
     timera_config_t *unit = nullptr;
-    en_timera_channel_t channel = TimeraCh1;
-    en_port_func_t port_function;
+    uint8_t channel = TMRA_CH1;
+    uint8_t port_function;
     if (!timera_get_assignment(ulPin, unit, channel, port_function))
     {
         CORE_ASSERT_FAIL("analogWrite: pin is not a PWM pin");
@@ -98,7 +99,7 @@ bool isAnalogWritePin(gpio_pin_t ulPin)
 {
     // if the pin has a timerA assignment, it is a PWM pin
     timera_config_t *unit = nullptr;
-    en_timera_channel_t channel = TimeraCh1;
-    en_port_func_t port_function;
+    uint8_t channel = TMRA_CH1;
+    uint8_t port_function;
     return timera_get_assignment(ulPin, unit, channel, port_function);
 }
