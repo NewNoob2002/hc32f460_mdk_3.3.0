@@ -69,11 +69,6 @@
 #define SERIAL_RX_BUFFER_SIZE 512
 #define SERIAL_TX_BUFFER_SIZE 128
 
-#if SERIAL_1_ENABLE
-extern uint8_t usart1_rx_buffer[SERIAL_RX_BUFFER_SIZE];
-extern uint8_t usart1_tx_buffer[SERIAL_TX_BUFFER_SIZE];
-#endif
-
 class HardwareSerial : public Stream
 {
 public:
@@ -126,18 +121,13 @@ public:
     RingBuffer<uint8_t> *_rx_buffer;
     RingBuffer<uint8_t> *_tx_buffer;
 
-    volatile uint16_t _rxBufferHead;
-    volatile uint16_t _rxBufferTail;
     uint8_t _rxBuffer[SERIAL_RX_BUFFER_SIZE];
     uint32_t _tx_timeout;
-    void USART_rx_data_available_irq(void);
     bool _is_initialized;
 };
 
 #if SERIAL_1_ENABLE
 extern HardwareSerial Serial;
-extern uint8_t usart1_rx_buffer[SERIAL_RX_BUFFER_SIZE];
-extern uint8_t usart1_tx_buffer[SERIAL_TX_BUFFER_SIZE];
 #endif
 
 #if SERIAL_2_ENABLE

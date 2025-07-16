@@ -400,8 +400,8 @@
         "bin": "",
         "baseAddr": "",
         "cpuInfo": {
-          "vendor": "null",
-          "cpuName": "null"
+          "vendor": "XHSC",
+          "cpuName": "HC32F460xE"
         },
         "proType": 1,
         "speed": 8000,
@@ -435,29 +435,14 @@
         "AC6": {
           "version": 3,
           "beforeBuildTasks": [],
-          "afterBuildTasks": [
-            {
-              "name": "[Copy linker output for Keil User Commands]",
-              "command": "cd .\\MDK_ARM\\MDK && mkdir ${KEIL_OUTPUT_DIR} & copy \"${OutDir}\\${ProjectName}.axf\" \"${KEIL_OUTPUT_DIR}\\${ProjectName}.axf\"",
-              "disable": false,
-              "abortAfterFailed": true
-            },
-            {
-              "name": "$K\\ARM\\ARMCLANG\\bin\\fromelf.exe --bin --output=build/@L.bin !L",
-              "command": "cd .\\MDK_ARM\\MDK && ${ToolchainRoot}\\\\ARM\\ARMCLANG\\bin\\fromelf.exe --bin --output=build/${ProjectName}.bin ${KEIL_OUTPUT_DIR}\\${ProjectName}.axf",
-              "disable": false,
-              "abortAfterFailed": true
-            }
-          ],
+          "afterBuildTasks": [],
           "global": {
-            "use-microLIB": false,
             "output-debug-info": "enable"
           },
           "c/cpp-compiler": {
             "optimization": "level-1",
             "language-c": "c11",
             "language-cpp": "c++11",
-            "link-time-optimization": false,
             "one-elf-section-per-function": true,
             "short-enums#wchar": true,
             "warnings": "ac5-like-warnings"
@@ -468,7 +453,6 @@
           "linker": {
             "output-format": "elf",
             "misc-controls": "--keep=*Handler",
-            "xo-base": "",
             "ro-base": "0x00000000",
             "rw-base": "0x1FFF8000"
           }

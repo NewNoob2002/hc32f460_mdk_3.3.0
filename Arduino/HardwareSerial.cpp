@@ -8,8 +8,18 @@
 
 #if SERIAL_1_ENABLE
 HardwareSerial Serial(&USART1_config, SERIAL_1_TX_PIN, SERIAL_1_RX_PIN);
-uint8_t usart1_rx_buffer[SERIAL_RX_BUFFER_SIZE];
-uint8_t usart1_tx_buffer[SERIAL_TX_BUFFER_SIZE];
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int usart1_write(uint8_t *ch, int len)
+{
+    return Serial.write(ch, len);
+}
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 
 #if SERIAL_2_ENABLE
@@ -182,22 +192,13 @@ void HardwareSerial::begin(const stc_usart_uart_init_t *config, const bool rxNoi
     if (ret != LL_OK) {
         CORE_ASSERT_FAIL("USART: failed to initialize");
     }
-    if (USARTx == CM_USART1) {
-        this->_rx_buffer = new RingBuffer<uint8_t>(usart1_rx_buffer, SERIAL_RX_BUFFER_SIZE);
-        this->_rx_buffer->clear();
-        this->_tx_buffer = new RingBuffer<uint8_t>(usart1_tx_buffer, SERIAL_TX_BUFFER_SIZE);
-        this->_tx_buffer->clear();
-    }
-    // else if(USARTx == CM_USART2)
-    // {
-    //     this->usart_config->state.rx_buffer = new RingBuffer<uint8_t>(usart2_rx_buffer, SERIAL_RX_BUFFER_SIZE);
-    // }
-    // else if(USARTx == CM_USART3)
-    // {
-    //     this->usart_config->state.rx_buffer = new RingBuffer<uint8_t>(usart3_rx_buffer, SERIAL_RX_BUFFER_SIZE);
-    // }
+
+    this->_rx_buffer = new RingBuffer<uint8_t>(_rxBuffer, SERIAL_RX_BUFFER_SIZE);
+    this->_rx_buffer->clear();
+    // this->_tx_buffer = new RingBuffer<uint8_t>(usart1_tx_buffer, SERIAL_TX_BUFFER_SIZE);
+    // this->_tx_buffer->clear();
     this->usart_config->state.rx_buffer = this->_rx_buffer;
-    this->usart_config->state.tx_buffer = this->_tx_buffer;
+    // this->usart_config->state.tx_buffer = this->_tx_buffer;
 
     usart_irq_register(this->usart_config->interrupts.rx_error, "USART_RX_ERROR");
     // usart_irq_register(this->usart_config->interrupts.tx_buffer_empty, "USART_TX_BUFFER_EMPTY");
@@ -249,7 +250,7 @@ void HardwareSerial::end()
 
     FCG_Fcg1PeriphClockCmd(this->usart_config->peripheral.clock_id, DISABLE);
 
-    // this->_rx_buffer->clear();
+    this->_rx_buffer->clear();
     // this->_tx_buffer->clear();
 
     USART_DEBUG_PRINTF("end completed\n");
@@ -303,10 +304,9 @@ int HardwareSerial::read()
 
 void HardwareSerial::flush()
 {
-    _rxBufferHead = _rxBufferTail;
-    // if (!this->_is_initialized) {
-    //     return;
-    // }
+    if (!this->_is_initialized) {
+        return;
+    }
     // while (!this->_tx_buffer->isEmpty()) {
     //     uint8_t ch;
     //     this->_tx_buffer->pop(ch);
