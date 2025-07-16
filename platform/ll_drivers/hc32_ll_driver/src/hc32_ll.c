@@ -22,7 +22,6 @@
  * Include files
  ******************************************************************************/
 #include "hc32_ll.h"
-#include "hc32_ll_utility.h"
 
 /**
  * @defgroup LL_Driver LL Driver

@@ -159,8 +159,8 @@ uint32_t IWatchdog::begin(const uint32_t timeout_ms, const voidFuncPtr callback)
     // call begin
     begin(clock_divider, count_cycle, callback);
 
-    CORE_DEBUG_PRINTF("IWatchdog::begin: timeout=%dms, actual_timeout=%dms, base_clock=%d\n",
-                      int(timeout_ms), int(actual_timeout), int(base_clock));
+    CORE_DEBUG_PRINTF("IWatchdog::begin: timeout=%dms(%d s), actual_timeout=%dms(%d s), base_clock=%d\n",
+                      int(timeout_ms), int(timeout_ms / 1000), int(actual_timeout), int(actual_timeout / 1000), int(base_clock));
     return actual_timeout;
 }
 

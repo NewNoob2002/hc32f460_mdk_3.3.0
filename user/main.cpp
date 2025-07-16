@@ -29,7 +29,7 @@ int32_t main(void)
 	pinMode(PA2, OUTPUT);
 	Serial.begin(115200);
 
-	WDT.begin(10);
+	// WDT.begin(10 * 1000);
 	printf("Hello, world\n");
 	printf("float: %f\n", 1.234);
 
@@ -39,7 +39,6 @@ int32_t main(void)
 		{
 			tick_led = millis();
 			digitalToggle(PA1);
-			WDT.reload();
 		}
 		if (millis() - tick1_led >= 150)
 		{
@@ -49,7 +48,6 @@ int32_t main(void)
 		if (millis() - tick2_led >= 200)
 		{
 			tick2_led = millis();
-			printf("getCounter: %d\n", WDT.getCounter());
 			digitalToggle(PA2);
 		}
 	}
