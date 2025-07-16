@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <hc32_ll.h>
+#include <math.h>  // 用于sin函数
 // #include "FreeRTOS.h"
 // #include "task.h"
 
@@ -13,7 +14,12 @@
 
 static uint32_t tick_led = 0;
 static uint32_t tick1_led = 0;
-static uint32_t tick2_led = 0;;
+static uint32_t tick2_led = 0;
+
+// 呼吸灯参数
+static float breath_angle = 0.0;          // 当前角度
+static const float breath_speed = 0.02;   // 呼吸速度，可调节
+static const uint32_t breath_update_interval = 10; // 更新间隔(ms)，值越小越丝滑
 
 int32_t main(void)
 {
@@ -24,17 +30,38 @@ int32_t main(void)
 	delay_init();
 	Serial.begin(115200);
 
-	pinMode(PA0, PWM);
+	// pinMode(PA0, PWM);
+	pinMode(PA1, PWM);
+
+	// 设置PWM分辨率为10位(0-1023)，提供更平滑的控制
+	analogWriteResolution(10);
 
 	// WDT.begin(10 * 1000);
-	printf("Hello, world\n");
-	printf("float: %f\n", 1.234);
+	
 	static uint32_t i = 0;
 	while (1)
 	{
-		if (millis() - tick_led >= 100)
+		// 呼吸灯更新
+		if (millis() - tick_led >= breath_update_interval)
 		{
 			tick_led = millis();
+			
+			// 使用正弦函数生成平滑的呼吸效果
+			// sin值范围[-1, 1]，转换为[0, 1023]
+			float sin_val = sin(breath_angle);
+			// 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
+			uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
+			
+			// 输出PWM
+			// analogWrite(PA0, pwm_value);
+			analogWrite(PA1, pwm_value);
+			// 更新角度
+			breath_angle += breath_speed;
+			
+			// 防止角度过大，重置到0-2π范围
+			if (breath_angle >= 2 * PI) {
+				breath_angle = 0.0;
+			}
 		}
 	}
 }

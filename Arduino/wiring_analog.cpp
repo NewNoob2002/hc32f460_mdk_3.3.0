@@ -60,7 +60,7 @@ void analogReadResolution(int res)
 //
 // analogWrite
 //
-uint32_t analogWriteScale = (1 << 8);
+static uint32_t analogWriteScale = (1 << 8);
 
 void analogWriteResolution(uint8_t res)
 {

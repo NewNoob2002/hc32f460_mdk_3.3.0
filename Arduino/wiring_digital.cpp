@@ -57,7 +57,7 @@ void pinMode(gpio_pin_t dwPin, PinMode_TypeDef dwMode, uint8_t State)
             }
 
             // initialize timer unit, allow incompatible config
-            switch (timera_pwm_start(unit, 100* 1000 /* Hz */, 4, true)) {
+            switch (timera_pwm_start(unit, 200* 1000 /* Hz */, 1, true)) {
                 case LL_OK:
                     // all good
                     break;

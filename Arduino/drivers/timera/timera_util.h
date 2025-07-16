@@ -104,7 +104,7 @@ inline bool timera_get_assignment(
     }
 
     // all ok
-    TIMERA_DEBUG_PRINTF(unit_config, output_channel, "get_assignment: pin %d Func%d\n", pin, output_function);
+    // TIMERA_DEBUG_PRINTF(unit_config, output_channel, "get_assignment: pin %d Func%d\n", pin, output_function);
     return true;
 }
 
