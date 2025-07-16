@@ -1,0 +1,53 @@
+#######################################
+# Syntax Coloring Map For SoftWire
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SoftWire	KEYWORD1
+SoftI2CStatus	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+setClock	KEYWORD2
+isDeviceOnline	KEYWORD2
+
+writeRegister8	KEYWORD2
+readRegister8	KEYWORD2
+writeBytes	KEYWORD2
+readBytes	KEYWORD2
+
+writeRegister16BE	KEYWORD2
+readRegister16BE	KEYWORD2
+writeRegister16LE	KEYWORD2
+readRegister16LE	KEYWORD2
+
+beginTransmission	KEYWORD2
+write	KEYWORD2
+endTransmission	KEYWORD2
+requestFrom	KEYWORD2
+available	KEYWORD2
+read	KEYWORD2
+
+getStatusString	KEYWORD2
+scanBus	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+SOFT_I2C_SUCCESS	LITERAL1
+SOFT_I2C_NACK_ADDR	LITERAL1
+SOFT_I2C_NACK_DATA	LITERAL1
+SOFT_I2C_TIMEOUT_ERROR	LITERAL1
+SOFT_I2C_BUS_ERROR	LITERAL1
+
+SOFT_I2C_DELAY_US	LITERAL1
+SOFT_I2C_TIMEOUT	LITERAL1
+SOFT_I2C_MAX_RETRIES	LITERAL1 

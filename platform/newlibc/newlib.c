@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <errno.h>
+#include "CommonMacro.h"
 
 // 定义必要的常量（如果未定义）
 #ifndef STDOUT_FILENO
@@ -28,7 +29,6 @@ int usart1_write(uint8_t *ch, int len);
 
 // AC6编译器printf重定向实现
 #ifdef __ARMCC_VERSION
-__asm (".global __use_no_semihosting\n\t");
 
 /**
  * @brief 重定向_write函数到串口输出

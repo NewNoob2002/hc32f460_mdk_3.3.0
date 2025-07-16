@@ -646,6 +646,11 @@
               <FileType>8</FileType>
               <FilePath>..\..\Arduino\drivers\usart\usart_config.cpp</FilePath>
             </File>
+            <File>
+              <FileName>usart_sync.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\drivers\usart\usart_sync.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

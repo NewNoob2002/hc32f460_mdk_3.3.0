@@ -23,6 +23,7 @@
 #include <math.h>
 
 #include "core_types.h"
+#include "CommonMacro.h"
 
 // some libraries and sketches depend on this AVR stuff,
 // assuming Arduino.h or WProgram.h automatically includes it...
@@ -59,6 +60,8 @@ extern "C"{
 //#include "Tone.h"
 #include "WMath.h"
 #include "HardwareSerial.h"
+#include "libaries/IWatchdog/IWatchdog.h"
+#include "libaries/TrueRandom/TrueRandom.h"
 // #include "RingBuf.h"
 #include "Stream.h"
 //#include "pulse.h"

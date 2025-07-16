@@ -103,6 +103,12 @@
               },
               {
                 "path": "platform/ll_drivers/hc32_ll_driver/src/hc32_ll_utility.c"
+              },
+              {
+                "path": "platform/ll_drivers/hc32_ll_driver/src/hc32_ll_trng.c"
+              },
+              {
+                "path": "platform/ll_drivers/hc32_ll_driver/src/hc32_ll_wdt.c"
               }
             ],
             "folders": []
@@ -112,6 +118,9 @@
             "files": [
               {
                 "path": "platform/newlibc/newlib.c"
+              },
+              {
+                "path": "platform/newlibc/newlib.s"
               }
             ],
             "folders": []
@@ -207,7 +216,11 @@
               },
               {
                 "name": "timera",
-                "files": [],
+                "files": [
+                  {
+                    "path": "Arduino/drivers/timera/timera_config.cpp"
+                  }
+                ],
                 "folders": []
               },
               {
@@ -227,7 +240,26 @@
           {
             "name": "libraries",
             "files": [],
-            "folders": []
+            "folders": [
+              {
+                "name": "TrueRandom",
+                "files": [
+                  {
+                    "path": "Arduino/libaries/TrueRandom/TrueRandom.cpp"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "IWDT",
+                "files": [
+                  {
+                    "path": "Arduino/libaries/IWatchdog/IWatchdog.cpp"
+                  }
+                ],
+                "folders": []
+              }
+            ]
           },
           {
             "name": "variants",
@@ -281,7 +313,8 @@
   "targets": {
     "debug": {
       "excludeList": [
-        "<virtual_root>/FreeRTOS"
+        "<virtual_root>/FreeRTOS",
+        "<virtual_root>/Arduino/drivers/timera/timera_config.cpp"
       ],
       "toolchain": "AC6",
       "compileConfig": {
@@ -431,7 +464,8 @@
         "defineList": [
           "HC32F460",
           "USE_DDL_DRIVER",
-          "__DEBUG"
+          "__DEBUG",
+          "__CORE_DEBUG"
         ]
       },
       "builderOptions": {

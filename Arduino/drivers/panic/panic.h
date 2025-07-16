@@ -2,6 +2,11 @@
 #include "panic_api.h"
 #include <stdlib.h>
 
+#ifndef STRINGIFY
+#define STRINGIFY_DETAIL(x) #x
+#define STRINGIFY(x) STRINGIFY_DETAIL(x)
+#endif
+
 #define PANIC_ENABLE 1
 #define HANG_ON_PANIC
 #define PANIC_USART1_TX_PIN PA15
