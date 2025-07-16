@@ -337,7 +337,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>HC32F460,USE_DDL_DRIVER,__DEBUG</Define>
+              <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx</IncludePath>
             </VariousControls>
@@ -412,6 +412,11 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\core\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>newlib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\newlibc\newlib.c</FilePath>
             </File>
           </Files>
         </Group>

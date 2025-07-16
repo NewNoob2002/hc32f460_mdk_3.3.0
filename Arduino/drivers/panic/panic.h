@@ -2,6 +2,9 @@
 #include "panic_api.h"
 #include <stdlib.h>
 
+#define PANIC_ENABLE 1
+#define HANG_ON_PANIC
+#define PANIC_USART1_TX_PIN PA15
 // determine if at least one panic output is defined
 #ifdef PANIC_USART1_TX_PIN
   #define PANIC_USART1_AVAILABLE 1
@@ -39,7 +42,9 @@
 // - either manually enabled
 // - or panic output is available
 #if (PANIC_OUTPUT_AVAILABLE && ENABLE_PANIC_ENABLE)
-#define ENABLE_PANIC_HANDLER
+#define ENABLE_PANIC_HANDLER 1
+#else
+#define ENABLE_PANIC_HANDLER 0
 #endif
 
 #if ENABLE_PANIC_HANDLER

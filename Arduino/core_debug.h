@@ -12,7 +12,7 @@
 #endif
 
 #ifndef CORE_DEBUG_PRINTF
-#define CORE_DEBUG_PRINTF(fmt, ...) Serial.printf(fmt, ##__VA_ARGS__)
+#define CORE_DEBUG_PRINTF(fmt, ...)  printf(fmt, ##__VA_ARGS__)
 #endif
 
 #ifndef CORE_ASSERT

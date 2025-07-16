@@ -215,6 +215,9 @@
                 "files": [
                   {
                     "path": "Arduino/drivers/usart/usart_config.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/usart/usart_sync.cpp"
                   }
                 ],
                 "folders": []

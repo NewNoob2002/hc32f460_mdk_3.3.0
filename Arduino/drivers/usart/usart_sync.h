@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
-#include <hc32_ddl.h>
+#include <hc32_ll.h>
 #include "../gpio/gpio.h"
 
 #ifdef __cplusplus
@@ -16,7 +16,7 @@ extern "C"
      * @note use of this function could lead to multiple TX pins being configured for the same USART device. be careful!
      * @note somewhat internal function, not intended for direct use. do not use this unless you know what you're doing!
      */
-    void usart_sync_init(M4_USART_TypeDef *usart, const gpio_pin_t tx_pin, const uint32_t baudrate, const stc_usart_uart_init_t *config);
+    void usart_sync_init(CM_USART_TypeDef *usart, const gpio_pin_t tx_pin, const stc_usart_uart_init_t *config);
 
     /**
      * @brief synchronously write a single character to USART device
@@ -25,7 +25,7 @@ extern "C"
      * @note usart must be initialized using usart_sync_init() first
      * @note somewhat internal function, not intended for direct use. do not use this unless you know what you're doing!
      */
-    void usart_sync_putc(M4_USART_TypeDef *usart, const char ch);
+    void usart_sync_putc(CM_USART_TypeDef *usart, const char ch);
 
     /**
      * @brief synchronously write a string to USART device
@@ -34,7 +34,7 @@ extern "C"
      * @note need to manually initialize USART device with usart_sync_init() first
      * @note somewhat internal function, not intended for direct use. do not use this unless you know what you're doing!
      */
-    void usart_sync_write(M4_USART_TypeDef *usart, const char *str);
+    void usart_sync_write(CM_USART_TypeDef *usart, const char *str);
 
 #ifdef __cplusplus
 }
