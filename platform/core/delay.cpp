@@ -89,15 +89,15 @@ void delay_us(const uint32_t us)
 #else
 #include "libaries/Timer0/src/Timer0.h"
 
-#ifndef TIMER0_TICK_FREQ
-#  define TIMER0_TICK_FREQ     (1000) // Hz
-#endif
+//#ifndef TIMER0_TICK_FREQ
+//#  define TIMER0_TICK_FREQ     (1000) // Hz
+//#endif
 
-#define TIMER0_TICK_STEP (1000 / TIMER0_TICK_FREQ)
-#define TIMER0_TICK_LOAD (SYSTEM_CLOCK_FREQUENCIES.pclk1/ SYSTICK_TICK_FREQ)
-#define CYCLES_PER_MICROSECOND (SYSTEM_CLOCK_FREQUENCIES.pclk1/ 1000000)
+//#define TIMER0_TICK_STEP (1000 / TIMER0_TICK_FREQ)
+//#define TIMER0_TICK_LOAD (SYSTEM_CLOCK_FREQUENCIES.pclk1/ SYSTICK_TICK_FREQ)
+//#define CYCLES_PER_MICROSECOND (SYSTEM_CLOCK_FREQUENCIES.pclk1/ 1000000)
 
-#define SYSTICK_TICK_MS (TIMER0_TICK_STEP * systick_ticks)
+//#define SYSTICK_TICK_MS (TIMER0_TICK_STEP * systick_ticks)
 
 Timer0 timer0_delay(&TIMER01B_config);
 

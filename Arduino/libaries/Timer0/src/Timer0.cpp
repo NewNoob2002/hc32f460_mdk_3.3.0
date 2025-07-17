@@ -87,7 +87,7 @@ inline void timer0_irq_register(timer0_interrupt_config_t &irq, voidFuncPtr call
 
     // register and enable irq with default priority
     INTC_IrqSignIn(&irqConf);
-    NVIC_SetPriority(irqConf.enIRQn, DDL_IRQ_PRIO_07);
+    NVIC_SetPriority(irqConf.enIRQn, DDL_IRQ_PRIO_DEFAULT);
     NVIC_ClearPendingIRQ(irqConf.enIRQn);
     NVIC_EnableIRQ(irqConf.enIRQn);
 }

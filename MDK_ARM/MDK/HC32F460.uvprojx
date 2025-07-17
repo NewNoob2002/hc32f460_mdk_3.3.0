@@ -337,9 +337,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG</Define>
+              <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG,USE_FREERTOS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx</IncludePath>
+              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -409,14 +409,19 @@
           <GroupName>platform/core</GroupName>
           <Files>
             <File>
-              <FileName>delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\core\delay.c</FilePath>
-            </File>
-            <File>
               <FileName>newlib.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\newlibc\newlib.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\platform\core\delay.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>no_semihost.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\platform\newlibc\no_semihost.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -523,6 +528,21 @@
               <FileType>1</FileType>
               <FilePath>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_utility.c</FilePath>
             </File>
+            <File>
+              <FileName>hc32_ll_fcm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_fcm.c</FilePath>
+            </File>
+            <File>
+              <FileName>hc32_ll_wdt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>hc32_ll_trng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_trng.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -572,6 +592,11 @@
               <FileName>dtostrf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Arduino\avr\dtostrf.c</FilePath>
+            </File>
+            <File>
+              <FileName>wiring_analog.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\wiring_analog.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -637,6 +662,13 @@
         </Group>
         <Group>
           <GroupName>Arduino/drivers/timera</GroupName>
+          <Files>
+            <File>
+              <FileName>timera_config.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\drivers\timera\timera_config.cpp</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Arduino/drivers/usart</GroupName>
@@ -654,7 +686,29 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Arduino/libraries</GroupName>
+          <GroupName>Arduino/libraries/Timer0</GroupName>
+          <Files>
+            <File>
+              <FileName>Timer0.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\libaries\Timer0\src\Timer0.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>timer0_config.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\libaries\Timer0\src\timer0_config.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Arduino/libraries/IWatchDog</GroupName>
+          <Files>
+            <File>
+              <FileName>IWatchdog.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\libaries\IWatchdog\IWatchdog.cpp</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Arduino/variants</GroupName>
@@ -668,115 +722,56 @@
         </Group>
         <Group>
           <GroupName>FreeRTOS</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>0</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <uGnu>2</uGnu>
-                <useXO>2</useXO>
-                <v6Lang>0</v6Lang>
-                <v6LangP>0</v6LangP>
-                <vShortEn>2</vShortEn>
-                <vShortWch>2</vShortWch>
-                <v6Lto>2</v6Lto>
-                <v6WtE>2</v6WtE>
-                <v6Rtti>2</v6Rtti>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <ClangAsOpt>0</ClangAsOpt>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
           <Files>
             <File>
               <FileName>croutine.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\croutine.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\croutine.c</FilePath>
             </File>
             <File>
               <FileName>list.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\list.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\list.c</FilePath>
             </File>
             <File>
               <FileName>queue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\queue.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\queue.c</FilePath>
             </File>
             <File>
               <FileName>stream_buffer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\stream_buffer.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\stream_buffer.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\tasks.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\tasks.c</FilePath>
             </File>
             <File>
               <FileName>timers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\timers.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\timers.c</FilePath>
             </File>
             <File>
               <FileName>port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\portable\GCC\ARM_CM4F\port.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F\port.c</FilePath>
             </File>
             <File>
               <FileName>heap_4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\FreeRTOS\portable\MemMang\heap_4.c</FilePath>
+              <FilePath>..\..\libraries\FreeRTOS\portable\MemMang\heap_4.c</FilePath>
+            </File>
+            <File>
+              <FileName>event_groups.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\libraries\FreeRTOS\event_groups.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOSConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\libraries\FreeRTOS\FreeRTOSConfig.h</FilePath>
             </File>
           </Files>
         </Group>

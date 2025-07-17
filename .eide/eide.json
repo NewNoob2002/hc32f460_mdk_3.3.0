@@ -123,7 +123,7 @@
                 "path": "platform/newlibc/newlib.c"
               },
               {
-                "path": "platform/newlibc/newlib.s"
+                "path": "platform/newlibc/no_semihost.s"
               }
             ],
             "folders": []
@@ -294,28 +294,34 @@
         "name": "FreeRTOS",
         "files": [
           {
-            "path": "FreeRTOS/croutine.c"
+            "path": "libraries/FreeRTOS/croutine.c"
           },
           {
-            "path": "FreeRTOS/list.c"
+            "path": "libraries/FreeRTOS/list.c"
           },
           {
-            "path": "FreeRTOS/queue.c"
+            "path": "libraries/FreeRTOS/queue.c"
           },
           {
-            "path": "FreeRTOS/stream_buffer.c"
+            "path": "libraries/FreeRTOS/stream_buffer.c"
           },
           {
-            "path": "FreeRTOS/tasks.c"
+            "path": "libraries/FreeRTOS/tasks.c"
           },
           {
-            "path": "FreeRTOS/timers.c"
+            "path": "libraries/FreeRTOS/timers.c"
           },
           {
-            "path": "FreeRTOS/portable/GCC/ARM_CM4F/port.c"
+            "path": "libraries/FreeRTOS/portable/MemMang/heap_4.c"
           },
           {
-            "path": "FreeRTOS/portable/MemMang/heap_4.c"
+            "path": "libraries/FreeRTOS/event_groups.c"
+          },
+          {
+            "path": "libraries/FreeRTOS/FreeRTOSConfig.h"
+          },
+          {
+            "path": "libraries/FreeRTOS/portable/GCC/ARM_CM4F/port.c"
           }
         ],
         "folders": []
@@ -495,7 +501,10 @@
           ".cmsis/include",
           "MDK_ARM/MDK/RTE/_debug",
           "libraries/cm_backtrace",
-          "libraries/cm_backtrace/Languages/en-US"
+          "libraries/cm_backtrace/Languages/en-US",
+          "libraries/FreeRTOS",
+          "libraries/FreeRTOS/include",
+          "libraries/FreeRTOS/portable/GCC/ARM_CM4F"
         ],
         "libList": [],
         "defineList": [
