@@ -159,16 +159,16 @@
           <Type>0</Type>
           <LineNumber>196</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>20368</Address>
+          <Address>0</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
+          <BreakIfRCount>0</BreakIfRCount>
           <Filename>..\..\Arduino\HardwareSerial.cpp</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\HC32F460\../../Arduino/HardwareSerial.cpp\196</Expression>
+          <Expression></Expression>
         </Bp>
         <Bp>
           <Number>1</Number>

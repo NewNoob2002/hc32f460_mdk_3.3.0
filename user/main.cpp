@@ -26,7 +26,8 @@ int32_t main(void)
 	/* Register write enable for some required peripherals. */
 	LL_PERIPH_WE(EXAMPLE_PERIPH_WE);
 	WRITE_REG16(CM_GPIO->PSPCR, 0x03);
-	Clock_Init();
+	clock_init();
+	xtal32_init();
 	delay_init();
 	Serial.begin(115200);
 

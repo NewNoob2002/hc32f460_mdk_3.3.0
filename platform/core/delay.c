@@ -1,4 +1,4 @@
-//#include "lvgl.h"
+#include <hc32_ll.h>
 #include "delay.h"
 #ifndef USE_FREERTOS
 
@@ -87,7 +87,7 @@ void delay_us(const uint32_t us)
 	goto start;
 }
 
-void Clock_Init()
+void clock_init()
 {
     stc_clock_xtal_init_t     stcXtalInit;
     stc_clock_pll_init_t      stcMpllInit;
@@ -146,6 +146,58 @@ void Clock_Init()
     EFM_CacheCmd(ENABLE);
 }
 
+int32_t xtal32_init()
+{
+  stc_clock_xtal32_init_t stcXtal32Init;
+  stc_fcm_init_t stcFcmInit;
+  uint32_t u32TimeOut = 0UL;
+  uint32_t u32Time = HCLK_VALUE / 5UL;
+
+  if (CLK_XTAL32_ON == READ_REG8(CM_CMU->XTAL32CR)) {
+      /* Disable xtal32 */
+      (void)CLK_Xtal32Cmd(DISABLE);
+  }
+
+  /* Xtal32 config */
+  (void)CLK_Xtal32StructInit(&stcXtal32Init);
+  stcXtal32Init.u8State  = CLK_XTAL32_ON;
+  stcXtal32Init.u8Drv    = CLK_XTAL32_DRV_MID;
+  stcXtal32Init.u8Filter = CLK_XTAL32_FILTER_ALL_MD;
+  GPIO_AnalogCmd(GPIO_PORT_C, GPIO_PIN_14 | GPIO_PIN_15, ENABLE);
+  (void)CLK_Xtal32Init(&stcXtal32Init);
+
+  /* FCM config */
+  FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_FCM, ENABLE);
+  (void)FCM_StructInit(&stcFcmInit);
+  stcFcmInit.u32RefClock       = FCM_REF_CLK_MRC;
+  stcFcmInit.u32RefClockDiv    = FCM_REF_CLK_DIV8192;
+  stcFcmInit.u32RefClockEdge   = FCM_REF_CLK_RISING;
+  stcFcmInit.u32TargetClock    = FCM_TARGET_CLK_XTAL32;
+  stcFcmInit.u32TargetClockDiv = FCM_TARGET_CLK_DIV1;
+  stcFcmInit.u16LowerLimit     = (uint16_t)((XTAL32_VALUE / (MRC_VALUE / 8192U)) * 96UL / 100UL);
+  stcFcmInit.u16UpperLimit     = (uint16_t)((XTAL32_VALUE / (MRC_VALUE / 8192U)) * 104UL / 100UL);
+  (void)FCM_Init(CM_FCM, &stcFcmInit);
+  /* Enable FCM, to ensure xtal32 stable */
+  FCM_Cmd(CM_FCM, ENABLE);
+  for (;;) {
+      if (SET == FCM_GetStatus(CM_FCM, FCM_FLAG_END)) {
+          FCM_ClearStatus(CM_FCM, FCM_FLAG_END);
+          if (SET == FCM_GetStatus(CM_FCM, FCM_FLAG_ERR | FCM_FLAG_OVF)) {
+              FCM_ClearStatus(CM_FCM, FCM_FLAG_ERR | FCM_FLAG_OVF);
+          } else {
+              (void)FCM_DeInit(CM_FCM);
+              FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_FCM, DISABLE);
+              return LL_OK;
+          }
+      }
+      u32TimeOut++;
+      if (u32TimeOut > u32Time) {
+          (void)FCM_DeInit(CM_FCM);
+          FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_FCM, DISABLE);
+          return LL_ERR_TIMEOUT;
+      }
+  }
+} 
 #else
 //do nothing
 #endif

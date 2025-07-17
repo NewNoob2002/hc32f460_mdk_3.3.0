@@ -18,7 +18,10 @@ void delay_us(uint32_t us);
 uint32_t millis();
 uint32_t micros();
 	
-void Clock_Init();
+void clock_init();
+
+int32_t xtal32_init();
+
 #endif
 
 #ifdef __cplusplus
