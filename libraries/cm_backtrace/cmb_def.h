@@ -371,7 +371,7 @@ if (!(EXPR))                                                                   \
         mov r0, sp
         bx lr
     }
-#elif defined(__CLANG_ARM)
+#elif defined(__CLANG_ARM) || defined(__clang__)
     __attribute__( (always_inline) ) static __inline uint32_t cmb_get_msp(void) {
         uint32_t result;
         __asm volatile ("mrs %0, msp" : "=r" (result) );

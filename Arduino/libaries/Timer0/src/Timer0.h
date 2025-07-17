@@ -1,17 +1,17 @@
 #pragma once
 
 // check DDL configuration
-#if (DDL_TIMER0_ENABLE != DDL_ON)
-#error "Timer0 library requires TIMER0 DDL to be enabled"
+#if (LL_TMR0_ENABLE != DDL_ON)
+#error "Timer0 library requires TIMER0 LL to be enabled"
 #endif
 
-#if (DDL_PWC_ENABLE != DDL_ON)
-#error "Timer0 library requires PWC DDL to be enabled"
+#if (LL_PWC_ENABLE != DDL_ON)
+#error "Timer0 library requires PWC LL to be enabled"
 #endif
 
-#include "Arduino.h"
 #include <core_debug.h>
-#include <hc32_ddl.h>
+#include <core_types.h>
+#include <hc32_ll.h>
 #include "timer0_config.h"
 
 /**
@@ -33,7 +33,13 @@ public:
      * @param config pointer to timer0 peripheral configuration
      * @param callback pointer to callback function for timer interrupt
      */
-    Timer0(timer0_channel_config_t *config, const voidFuncPtr callback);
+    Timer0(timer0_channel_config_t *config, const voidFuncPtr callback = nullptr);
+
+    /**
+     * @brief set the callback function for the timer0 channel
+     * @param callback pointer to callback function for timer interrupt
+     */
+    void setCallback(const voidFuncPtr callback);
 
     /**
      * @brief start timer0 channel with frequency and prescaler
@@ -44,7 +50,7 @@ public:
      * @note this function will not automatically start the timer interrupt. call resume() to start the interrupt
      * @note if the channel is already start()-ed, this function will stop the channel first
      */
-    void start(const uint32_t frequency, const uint16_t prescaler = 1);
+    void start(const uint32_t frequency, const uint16_t prescaler = 1, bool use_callback = true);
 
     /**
      * @brief start timer0 channel with custom channel config
@@ -52,7 +58,7 @@ public:
      * @note this function will not automatically start the timer interrupt. call resume() to start the interrupt
      * @note if the channel is already start()-ed, this function will stop the channel first
      */
-    void start(const stc_tim0_base_init_t *channel_config);
+    void start(const stc_tmr0_init_t *channel_config);
 
     /**
      * @brief stop timer0 channel
@@ -80,7 +86,7 @@ public:
             return;
         }
 
-        TIMER0_Cmd(this->config->peripheral.register_base, this->config->peripheral.channel, Disable);
+        TMR0_Stop(this->config->peripheral.register_base, this->config->peripheral.channel);
     }
 
     /**
@@ -96,7 +102,7 @@ public:
             return;
         }
 
-        TIMER0_Cmd(this->config->peripheral.register_base, this->config->peripheral.channel, Enable);
+        TMR0_Start(this->config->peripheral.register_base, this->config->peripheral.channel);
     }
 
     /**
@@ -114,13 +120,13 @@ public:
         }
 
         // otherwise, return the channel status
-        if (this->config->peripheral.channel == Tim0_ChannelA)
+        if (this->config->peripheral.channel == TMR0_CH_A)
         {
-            return !bool(this->config->peripheral.register_base->BCONR_f.CSTA);
+            return !READ_REG32_BIT(this->config->peripheral.register_base->BCONR, 1<<0);
         }
         else
         {
-            return !bool(this->config->peripheral.register_base->BCONR_f.CSTB);
+            return !READ_REG32_BIT(this->config->peripheral.register_base->BCONR, 1<<16);
         }
     }
 
@@ -132,8 +138,8 @@ public:
      */
     TIMER0_INLINE_ATTR void setCompareValue(const uint16_t compare)
     {
-        //CORE_ASSERT(this->isStarted, "Timer0::setCompare(): channel not initialized");
-        TIMER0_WriteCmpReg(this->config->peripheral.register_base, this->config->peripheral.channel, compare);
+        CORE_ASSERT(this->isStarted, "Timer0::setCompare(): channel not initialized");
+        TMR0_SetCompareValue(this->config->peripheral.register_base, this->config->peripheral.channel, compare);
     }
 
     /**
@@ -144,8 +150,8 @@ public:
      */
     TIMER0_INLINE_ATTR uint16_t getCount()
     {
-        //CORE_ASSERT(this->isStarted, "Timer0::getCount(): channel not initialized");
-        return TIMER0_GetCntReg(this->config->peripheral.register_base, this->config->peripheral.channel);
+        CORE_ASSERT(this->isStarted, "Timer0::getCount(): channel not initialized");
+        return TMR0_GetCountValue(this->config->peripheral.register_base, this->config->peripheral.channel);
     }
 
     /**
@@ -171,11 +177,20 @@ public:
      */
     TIMER0_INLINE_ATTR void clearInterruptFlag()
     {
-        TIMER0_ClearFlag(this->config->peripheral.register_base, this->config->peripheral.channel);
+        if (this->config->peripheral.channel == TMR0_CH_A)
+        {
+            TMR0_ClearStatus(this->config->peripheral.register_base, TMR0_FLAG_CMP_A);
+        }
+        else
+        {
+            TMR0_ClearStatus(this->config->peripheral.register_base, TMR0_FLAG_CMP_B);
+        }
     }
 
+    void Timer0_delayUs(uint64_t us);
 private:
     timer0_channel_config_t *config;
     voidFuncPtr callback;
+    bool use_callback = true;
     bool isStarted = false;
 };

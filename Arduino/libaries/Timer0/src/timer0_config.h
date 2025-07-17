@@ -1,5 +1,5 @@
 #pragma once
-#include <hc32_ddl.h>
+#include <hc32_ll.h>
 
 /**
  * @brief timer0 peripheral config
@@ -9,12 +9,12 @@ typedef struct timer0_peripheral_config_t
     /**
      * @brief The base address of the timer peripheral.
      */
-    M4_TMR0_TypeDef *register_base;
+    CM_TMR0_TypeDef *register_base;
 
     /**
      * @brief timer peripheral channel.
      */
-    en_tim0_channel_t channel;
+    uint32_t channel;
 
     /**
      * @brief The clock id of the timer peripheral.

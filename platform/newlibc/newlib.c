@@ -46,29 +46,26 @@ int _write(int fd, char *data, int size)
 {
     int i;
     int written = 0;
-    
+
     // 检查参数有效性
     if (data == NULL || size <= 0) {
         return -1;
     }
-    
+
     // 只处理标准输出和标准错误
     if (fd != STDOUT_FILENO && fd != STDERR_FILENO) {
         return -1;
     }
-    
+
     // 使用usart1_write函数输出数据
-    for (i = 0; i < size; i++) {
-        // 添加安全检查，避免在串口未初始化时调用
-        int result = usart1_write((uint8_t*)&data[i], 1);
-        if (result != 1) {
-            // 如果写入失败，返回已写入的字节数
-            // 在串口未初始化时，返回0而不是-1，避免错误
-            return written;
-        }
-        written++;
+    // 添加安全检查，避免在串口未初始化时调用
+    written = usart1_write((uint8_t *)&data[i], size);
+    if (written == 0) {
+        // 如果写入失败，返回已写入的字节数
+        // 在串口未初始化时，返回0而不是-1，避免错误
+        return 0;
     }
-    
+
     return written;
 }
 
@@ -80,9 +77,9 @@ int _write(int fd, char *data, int size)
  */
 int fputc(int ch, FILE *stream)
 {
-    (void)stream;  // 忽略stream参数
-    
-    if (usart1_write((uint8_t*)&ch, 1) == 1) {
+    (void)stream; // 忽略stream参数
+
+    if (usart1_write((uint8_t *)&ch, 1) == 1) {
         return ch;
     } else {
         return EOF;
@@ -126,7 +123,7 @@ __attribute__((weak)) int _sys_open(const char *path, int mode)
 {
     (void)path;
     (void)mode;
-    return -1;  // 不支持文件操作
+    return -1; // 不支持文件操作
 }
 
 /**
@@ -152,7 +149,7 @@ __attribute__((weak)) int _sys_write(int fd, const char *data, int size)
     (void)fd;
     (void)data;
     (void)size;
-    return size;  // 假设成功写入
+    return size; // 假设成功写入
 }
 
 /**
@@ -167,7 +164,7 @@ __attribute__((weak)) int _sys_read(int fd, char *data, int size)
     (void)fd;
     (void)data;
     (void)size;
-    return 0;  // 无数据可读
+    return 0; // 无数据可读
 }
 
 /**
@@ -178,7 +175,7 @@ __attribute__((weak)) int _sys_read(int fd, char *data, int size)
 __attribute__((weak)) long _sys_flen(int fd)
 {
     (void)fd;
-    return 0;  // 文件长度为0
+    return 0; // 文件长度为0
 }
 
 /**
@@ -201,7 +198,7 @@ __attribute__((weak)) long _sys_seek(int fd, long pos)
 {
     (void)fd;
     (void)pos;
-    return 0;  // 成功
+    return 0; // 成功
 }
 
 /**
@@ -212,9 +209,7 @@ __attribute__((weak)) long _sys_seek(int fd, long pos)
 __attribute__((weak)) int _sys_ensure(int fd)
 {
     (void)fd;
-    return 0;  // 成功
+    return 0; // 成功
 }
 
 #endif
-
- 

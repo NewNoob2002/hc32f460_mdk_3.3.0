@@ -62,6 +62,7 @@ extern "C"{
 #include "HardwareSerial.h"
 #include "libaries/IWatchdog/IWatchdog.h"
 #include "libaries/TrueRandom/TrueRandom.h"
+#include "libaries/Timer0/src/Timer0.h"
 // #include "RingBuf.h"
 #include "Stream.h"
 //#include "pulse.h"

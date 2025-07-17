@@ -36,7 +36,7 @@
             "name": "core",
             "files": [
               {
-                "path": "platform/core/delay.c"
+                "path": "platform/core/delay.cpp"
               }
             ],
             "folders": []
@@ -264,6 +264,18 @@
                   }
                 ],
                 "folders": []
+              },
+              {
+                "name": "Timer0",
+                "files": [
+                  {
+                    "path": "Arduino/libaries/Timer0/src/Timer0.cpp"
+                  },
+                  {
+                    "path": "Arduino/libaries/Timer0/src/timer0_config.cpp"
+                  }
+                ],
+                "folders": []
               }
             ]
           },
@@ -307,6 +319,24 @@
           }
         ],
         "folders": []
+      },
+      {
+        "name": "libraries",
+        "files": [],
+        "folders": [
+          {
+            "name": "cm_backtrace",
+            "files": [
+              {
+                "path": "libraries/cm_backtrace/cm_backtrace.c"
+              },
+              {
+                "path": "libraries/cm_backtrace/fault_handler/keil/cmb_fault.S"
+              }
+            ],
+            "folders": []
+          }
+        ]
       }
     ]
   },
@@ -319,7 +349,6 @@
   "targets": {
     "debug": {
       "excludeList": [
-        "<virtual_root>/FreeRTOS",
         "<virtual_root>/platform/newlibc/newlib.s"
       ],
       "toolchain": "AC6",
@@ -464,7 +493,9 @@
           "Arduino/avr",
           "Arduino/variants/hc32f460xx",
           ".cmsis/include",
-          "MDK_ARM/MDK/RTE/_debug"
+          "MDK_ARM/MDK/RTE/_debug",
+          "libraries/cm_backtrace",
+          "libraries/cm_backtrace/Languages/en-US"
         ],
         "libList": [],
         "defineList": [
@@ -472,7 +503,8 @@
           "USE_DDL_DRIVER",
           "__DEBUG",
           "__CORE_DEBUG",
-          "__FPU_PRESENT=1"
+          "__FPU_PRESENT=1",
+          "USE_FREERTOS"
         ]
       },
       "builderOptions": {

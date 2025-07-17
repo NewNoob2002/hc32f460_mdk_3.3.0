@@ -1,8 +1,9 @@
 /*******************************************************************************
  * Include files
  ******************************************************************************/
+#include "delay.h"
 #include <Arduino.h>
-#include <hc32_ll.h>
+#include <cm_backtrace.h>
 #include <math.h>  // 用于sin函数
 // #include "FreeRTOS.h"
 // #include "task.h"
@@ -27,10 +28,9 @@ int32_t main(void)
 	LL_PERIPH_WE(EXAMPLE_PERIPH_WE);
 	WRITE_REG16(CM_GPIO->PSPCR, 0x03);
 	clock_init();
-	xtal32_init();
-	delay_init();
 	Serial.begin(115200);
-
+	cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");
+	delay_init();
 	// pinMode(PA0, PWM);
 	pinMode(PA1, PWM);
 

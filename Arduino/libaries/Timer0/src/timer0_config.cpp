@@ -1,45 +1,46 @@
 #include "timer0_config.h"
+#include "hc32f460.h"
 
 timer0_channel_config_t TIMER01A_config = {
     .peripheral = {
-        .register_base = M4_TMR01,
-        .channel = Tim0_ChannelA,
-        .clock_id = PWC_FCG2_PERIPH_TIM01,
+        .register_base = CM_TMR0_1,
+        .channel = TMR0_CH_A,
+        .clock_id = FCG2_PERIPH_TMR0_1,
     },
     .interrupt = {
-        .interrupt_source = INT_TMR01_GCMA,
+        .interrupt_source = INT_SRC_TMR0_1_CMP_A,
     },
 };
 
 timer0_channel_config_t TIMER01B_config = {
     .peripheral = {
-        .register_base = M4_TMR01,
-        .channel = Tim0_ChannelB,
-        .clock_id = PWC_FCG2_PERIPH_TIM01,
+        .register_base = CM_TMR0_1,
+        .channel = TMR0_CH_B,
+        .clock_id = FCG2_PERIPH_TMR0_1,
     },
     .interrupt = {
-        .interrupt_source = INT_TMR01_GCMB,
+        .interrupt_source = INT_SRC_TMR0_1_CMP_B,
     },
 };
 
 timer0_channel_config_t TIMER02A_config = {
     .peripheral = {
-        .register_base = M4_TMR02,
-        .channel = Tim0_ChannelA,
-        .clock_id = PWC_FCG2_PERIPH_TIM02,
+        .register_base = CM_TMR0_2,
+        .channel = TMR0_CH_A,
+        .clock_id = FCG2_PERIPH_TMR0_2,
     },
     .interrupt = {
-        .interrupt_source = INT_TMR02_GCMA,
+        .interrupt_source = INT_SRC_TMR0_2_CMP_A,
     },
 };
 
 timer0_channel_config_t TIMER02B_config = {
     .peripheral = {
-        .register_base = M4_TMR02,
-        .channel = Tim0_ChannelB,
-        .clock_id = PWC_FCG2_PERIPH_TIM02,
+        .register_base = CM_TMR0_2,
+        .channel = TMR0_CH_B,
+        .clock_id = FCG2_PERIPH_TMR0_2,
     },
     .interrupt = {
-        .interrupt_source = INT_TMR02_GCMB,
+        .interrupt_source = INT_SRC_TMR0_2_CMP_B,
     },
 };

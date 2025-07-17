@@ -70,3 +70,4 @@ extern system_clock_frequencies_t SYSTEM_CLOCK_FREQUENCIES;
  */
 void update_system_clock_frequencies();
 void clock_init(void);
+int32_t xtal32_init();
