@@ -106,6 +106,7 @@ static volatile uint64_t timer0_ticks = 0;
 void Timer0_TickHandler()
 {
 	// clear interrupt flag
+	timer0_delay.clearInterruptFlag();
 	timer0_ticks += 1;
 }
 /* * @brief Timer0Tick Init

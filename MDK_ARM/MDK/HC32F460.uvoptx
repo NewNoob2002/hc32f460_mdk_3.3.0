@@ -140,7 +140,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>R</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,7 +156,23 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>173</LineNumber>
+          <LineNumber>565</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>6</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\..\libraries\FreeRTOS\portable\MemMang\heap_4.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\HC32F460\../../libraries/FreeRTOS/portable/MemMang/heap_4.c\565</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>474</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>30</Address>
           <ByteObject>0</ByteObject>
@@ -166,25 +181,9 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\Arduino\wiring_digital.cpp</Filename>
+          <Filename>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_pwc.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\HC32F460\../../Arduino/wiring_digital.cpp\173</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>162</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>11826</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\Arduino\drivers\panic\..\usart\..\gpio\gpio.h</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\HC32F460\../../Arduino/drivers/usart/../gpio/gpio.h\162</Expression>
+          <Expression>\\HC32F460\../../platform/ll_drivers/hc32_ll_driver/src/hc32_ll_pwc.c\474</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

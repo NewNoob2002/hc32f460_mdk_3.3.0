@@ -20,8 +20,8 @@ static float breath_angle                    = 0.0;  // 当前角度
 static const float breath_speed              = 0.05; // 呼吸速度，可调节
 static const uint32_t breath_update_interval = 10;   // 更新间隔(ms)，值越小越丝滑
 
-TaskHandle_t test_task_handle = nullptr;
-TaskHandle_t printf_task_handle = nullptr;
+TaskHandle_t test_task_handle    = nullptr;
+TaskHandle_t printf_task_handle  = nullptr;
 TaskHandle_t WatchDog_TaskHandle = nullptr;
 // 呼吸灯任务
 // 该任务会周期性更新呼吸灯的PWM值
@@ -45,26 +45,24 @@ static void test_task(void *e)
             breath_angle = 0.0;
         }
 
-		vTaskDelay(10); // 延时10ms，避免任务过于频繁
+        vTaskDelay(10); // 延时10ms，避免任务过于频繁
     }
 }
 
-static void print_task(void*e)
+static void print_task(void *e)
 {
-	while(true)
-	{
-		printf("Hello, World, Now Clock: %d\n", xTaskGetTickCount());
-		vTaskDelay(1000);
-	}
+    while (true) {
+        printf("Hello, World, Now Clock: %d\n", millis());
+        vTaskDelay(1000);
+    }
 }
 
-static void WatchDog_Task(void* e)
+static void WatchDog_Task(void *e)
 {
-	while(true)
-	{
-		WDT.reload();
-		vTaskDelay(1000);
-	}
+    while (true) {
+        WDT.reload();
+        vTaskDelay(1000);
+    }
 }
 int32_t main(void)
 {
@@ -73,7 +71,7 @@ int32_t main(void)
     WRITE_REG16(CM_GPIO->PSPCR, 0x03);
     clock_init();
     Serial.begin(115200);
-	  WDT.begin(10 * 1000);
+    WDT.begin(10 * 1000);
     // cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");
     delay_init();
     // pinMode(PA0, PWM);
@@ -83,8 +81,8 @@ int32_t main(void)
     analogWriteResolution(10);
     // 创建呼吸灯任务
     xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
-		xTaskCreate(print_task, "Print Task", 1024, nullptr, 1, &printf_task_handle);
-	  xTaskCreate(WatchDog_Task, "WatchDog Task", 512, nullptr, 1, &WatchDog_TaskHandle);
+    xTaskCreate(print_task, "Print Task", 1024, nullptr, 1, &printf_task_handle);
+    xTaskCreate(WatchDog_Task, "WatchDog Task", 512, nullptr, 1, &WatchDog_TaskHandle);
     // 启动调度器
     vTaskStartScheduler();
     while (true) {}

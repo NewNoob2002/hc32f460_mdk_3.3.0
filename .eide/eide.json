@@ -347,8 +347,8 @@
     ]
   },
   "outDir": "build",
-  "deviceName": null,
-  "packDir": null,
+  "deviceName": "HC32F460JEUA",
+  "packDir": ".pack/HDSC/HC32F460.1.0.12",
   "miscInfo": {
     "uid": "6c6d6fd814ae3b647bfcd3b088de3750"
   },
@@ -484,10 +484,31 @@
         "speed": 8000,
         "otherCmds": ""
       },
-      "uploadConfigMap": {},
+      "uploadConfigMap": {
+        "JLink": {
+          "bin": "",
+          "baseAddr": "",
+          "cpuInfo": {
+            "vendor": "XHSC",
+            "cpuName": "HC32F460xE"
+          },
+          "proType": 1,
+          "speed": 8000,
+          "otherCmds": ""
+        },
+        "pyOCD": {
+          "bin": "",
+          "targetName": "hc32f460xe",
+          "baseAddr": "0x08000000",
+          "speed": "8M",
+          "config": ".eide/debug.pyocd.yaml",
+          "otherCmds": ""
+        }
+      },
       "custom_dep": {
         "name": "default",
         "incList": [
+          ".",
           "config",
           "user/inc",
           "platform/cmsis/Include",
@@ -530,7 +551,8 @@
             "language-cpp": "c++11",
             "one-elf-section-per-function": true,
             "short-enums#wchar": true,
-            "warnings": "ac5-like-warnings"
+            "warnings": "ac5-like-warnings",
+            "link-time-optimization": true
           },
           "asm-compiler": {
             "$use": "asm-auto"
@@ -539,7 +561,10 @@
             "output-format": "elf",
             "misc-controls": "--keep=*Handler",
             "ro-base": "0x00000000",
-            "rw-base": "0x1FFF8000"
+            "rw-base": "0x1FFF8000",
+            "$outputTaskExcludes": [
+              ".s19"
+            ]
           }
         }
       }
