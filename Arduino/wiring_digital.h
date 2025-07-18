@@ -24,6 +24,7 @@
 #endif
 
 #include "WVariant.h"
+#include <drivers/gpio/gpio.h>
 #include "wiring_constants.h"
 #include "core_types.h"
 

@@ -1,4 +1,5 @@
 #include "wiring_digital.h"
+#include "wiring_analog.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/adc/adc.h"
 #include "drivers/timera/timera_pwm.h"
@@ -51,6 +52,8 @@ void pinMode(gpio_pin_t dwPin, PinMode_TypeDef dwMode, uint8_t State)
             timera_config_t *unit;
             uint8_t channel;
             uint8_t port_function;
+            //default to 10 resolution
+            analogWriteResolution(10);
             if (!timera_get_assignment(dwPin, unit, channel, port_function)) {
                 CORE_ASSERT_FAIL("analogWrite: pin is not a PWM pin");
                 return;

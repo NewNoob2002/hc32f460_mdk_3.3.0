@@ -37,6 +37,9 @@
             "files": [
               {
                 "path": "platform/core/delay.cpp"
+              },
+              {
+                "path": "platform/core/heap_init.c"
               }
             ],
             "folders": []
@@ -341,6 +344,45 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "lw_mem",
+            "files": [
+              {
+                "path": "libraries/lwmem/src/lwmem/lwmem.c"
+              },
+              {
+                "path": "libraries/lwmem/src/lwmem/lwmem.cpp"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "Parser",
+            "files": [
+              {
+                "path": "libraries/Parser/Parse_Custom.cpp"
+              },
+              {
+                "path": "libraries/Parser/Parse_NMEA.cpp"
+              },
+              {
+                "path": "libraries/Parser/Parse_RTCM.cpp"
+              },
+              {
+                "path": "libraries/Parser/Parse_UBLOX.cpp"
+              },
+              {
+                "path": "libraries/Parser/Parse_Unicore_Binary.cpp"
+              },
+              {
+                "path": "libraries/Parser/Parse_Unicore_Hash.cpp"
+              },
+              {
+                "path": "libraries/Parser/SparkFun_Extensible_Message_Parser.cpp"
+              }
+            ],
+            "folders": []
           }
         ]
       }
@@ -355,7 +397,8 @@
   "targets": {
     "debug": {
       "excludeList": [
-        "<virtual_root>/platform/newlibc/newlib.s"
+        "<virtual_root>/platform/newlibc/newlib.s",
+        "<virtual_root>/libraries/cm_backtrace"
       ],
       "toolchain": "AC6",
       "compileConfig": {
@@ -525,7 +568,9 @@
           "libraries/cm_backtrace/Languages/en-US",
           "libraries/FreeRTOS",
           "libraries/FreeRTOS/include",
-          "libraries/FreeRTOS/portable/GCC/ARM_CM4F"
+          "libraries/FreeRTOS/portable/GCC/ARM_CM4F",
+          "libraries/lwmem/src/include",
+          "libraries/Parser"
         ],
         "libList": [],
         "defineList": [

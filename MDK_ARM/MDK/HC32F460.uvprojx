@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG,USE_FREERTOS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F</IncludePath>
+              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\Parser;..\..\libraries\lwmem\src\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -422,6 +422,11 @@
               <FileName>no_semihost.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\platform\newlibc\no_semihost.s</FilePath>
+            </File>
+            <File>
+              <FileName>heap_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\core\heap_init.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -721,7 +726,47 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>FreeRTOS</GroupName>
+          <GroupName>Libaries/Parser</GroupName>
+          <Files>
+            <File>
+              <FileName>Parse_Custom.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\Parse_Custom.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Parse_NMEA.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\Parse_NMEA.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Parse_RTCM.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\Parse_RTCM.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Parse_UBLOX.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\Parse_UBLOX.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Parse_Unicore_Binary.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\Parse_Unicore_Binary.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Parse_Unicore_Hash.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\Parse_Unicore_Hash.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>SparkFun_Extensible_Message_Parser.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\Parser\SparkFun_Extensible_Message_Parser.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Libaries/FreeRTOS</GroupName>
           <Files>
             <File>
               <FileName>croutine.c</FileName>
@@ -772,6 +817,21 @@
               <FileName>FreeRTOSConfig.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\libraries\FreeRTOS\FreeRTOSConfig.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Libaries/lw_mem</GroupName>
+          <Files>
+            <File>
+              <FileName>lwmem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\libraries\lwmem\src\lwmem\lwmem.c</FilePath>
+            </File>
+            <File>
+              <FileName>lwmem.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\lwmem\src\lwmem\lwmem.cpp</FilePath>
             </File>
           </Files>
         </Group>

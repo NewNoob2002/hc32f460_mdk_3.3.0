@@ -67,16 +67,18 @@ extern "C"{
 #include "Stream.h"
 //#include "pulse.h"
 #endif
-#ifdef __cplusplus
-//#include "drivers/usart/Usart.h"
-#endif
 
-#include "delay.h"
+#ifdef __cplusplus
 #include "wiring_digital.h"
 #include "wiring_analog.h"
+#include "delay.h"
+#endif
+
+
 //#include "wiring_shift.h"
 //#include "WInterrupts.h"
 
+#include "heap_init.h"
 // undefine stdlib's abs if encountered
 #ifdef abs
 #undef abs

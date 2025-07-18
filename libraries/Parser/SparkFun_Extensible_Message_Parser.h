@@ -9,12 +9,14 @@ License: MIT. Please see LICENSE.md for more details
 #ifndef __SPARKFUN_EXTENSIBLE_MESSAGE_PARSER_H__
 #define __SPARKFUN_EXTENSIBLE_MESSAGE_PARSER_H__
 
-// #include <Arduino.h>
+#include <Arduino.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "semp_crc24q.h"
+#include "semp_crc32.h"
 //----------------------------------------
 // Constants
 //----------------------------------------
