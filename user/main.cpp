@@ -13,9 +13,6 @@
                            LL_PERIPH_PWC_CLK_RMU | LL_PERIPH_SRAM)
 #define EXAMPLE_PERIPH_WP (LL_PERIPH_EFM | LL_PERIPH_FCG | LL_PERIPH_SRAM)
 
-#define I2C_UNIT          (CM_I2C1)
-#define DEVICE_ADDR       (0x11U)
-
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
 };
@@ -71,7 +68,8 @@ static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 
     printf("Custom Parser Callback: Message ID: %u, Message Type: %u\n", messageId, messageType);
 }
-void parser_prinf_callback(const char *format, ...) {
+void parser_prinf_callback(const char *format, ...)
+{
     va_list args;
     va_start(args, format);
     vprintf(format, args);
@@ -88,29 +86,28 @@ static void i2cSlave_task(void *e)
                                     customParserCallback,
                                     "BluetoothDebug",
                                     parser_prinf_callback,
-																		parser_prinf_callback);
+                                    parser_prinf_callback);
     if (!custom_parser)
         printf("Failed to initialize the Bt parser");
     while (true) {
         uint8_t data[256] = {0};
-//        int32_t ret       = Serial.readBytes(data, sizeof(data));
-//        if (ret > 0) {
-//            Serial2.print("Received data: ");
-//            for (int i = 0; i < sizeof(data); i++) {
-//                Serial2.print(data[i], HEX);
-//                sempParseNextByte(custom_parser, data[i]);
-//            }
-//            printf("\n");
-//        }
-				if(Serial2.available())
-				{
-					int32_t bytes = Serial2.readBytes(data, Serial2.available());
-					for (int i = 0; i < bytes; i++) {
+        //        int32_t ret       = Serial.readBytes(data, sizeof(data));
+        //        if (ret > 0) {
+        //            Serial2.print("Received data: ");
+        //            for (int i = 0; i < sizeof(data); i++) {
+        //                Serial2.print(data[i], HEX);
+        //                sempParseNextByte(custom_parser, data[i]);
+        //            }
+        //            printf("\n");
+        //        }
+        if (Serial2.available()) {
+            int32_t bytes = Serial2.readBytes(data, Serial2.available());
+            for (int i = 0; i < bytes; i++) {
                 Serial2.print(data[i], HEX);
-//                sempParseNextByte(custom_parser, data[i]);
+                //                sempParseNextByte(custom_parser, data[i]);
             }
             Serial2.println();
-				}
+        }
         vTaskDelay(10); // 每秒检查一次
     }
 }
@@ -129,7 +126,7 @@ int32_t main(void)
     LL_PERIPH_WE(EXAMPLE_PERIPH_WE);
     WRITE_REG16(CM_GPIO->PSPCR, 0x03);
     clock_init();
-	  heap_init();
+    heap_init();
     Serial.begin(115200);
     Serial2.begin(115200);
     // cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");

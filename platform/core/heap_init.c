@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "heap_init.h"
 #include "lwmem/lwmem.h"
 
@@ -19,4 +18,22 @@ void heap_init()
     } else {
         printf("LwMEM initialized and ready to use\r\n");
     }
+}
+
+void *my_malloc(size_t size)
+{
+    void *ptr = lwmem_malloc(size);
+    if (ptr == NULL) {
+        printf("Memory allocation failed for size %zu\r\n", size);
+    }
+    return ptr;
+}
+
+void my_free(void *ptr)
+{
+    if (ptr == NULL) {
+        printf("Attempted to free a NULL pointer\r\n");
+        return;
+    }
+    lwmem_free(ptr);
 }
