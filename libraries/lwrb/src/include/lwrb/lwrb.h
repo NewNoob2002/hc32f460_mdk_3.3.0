@@ -37,7 +37,6 @@
 #define LWRB_DISABLE_ATOMIC
 
 #include <stdint.h>
-#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -101,6 +101,8 @@ static void WatchDog_Task(void *e)
     }
 }
 
+extern void i2c_buffer_init();
+
 int32_t main(void)
 {
     /* Register write enable for some required peripherals. */
@@ -114,6 +116,7 @@ int32_t main(void)
     // pinMode(PA0, PWM);
     pinMode(PA1, PWM);
 
+    i2c_buffer_init();
     xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
     xTaskCreate(i2cSlave_task, "I2C Slave Task", 1024 * 3, nullptr, 2, nullptr);
     // 启动调度器

@@ -22,6 +22,7 @@
 
 #include <math.h>
 
+#include "core_debug.h"
 #include "core_types.h"
 #include "CommonMacro.h"
 

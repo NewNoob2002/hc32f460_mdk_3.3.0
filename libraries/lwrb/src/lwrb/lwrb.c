@@ -32,6 +32,7 @@
  * Version:         v3.2.0
  */
 #include "lwrb/lwrb.h"
+#include <string.h>
 #include <stddef.h>
 /* Memory set and copy functions */
 #define BUF_MEMSET      memset
