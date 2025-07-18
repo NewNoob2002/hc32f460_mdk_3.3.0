@@ -383,6 +383,18 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "lw_rb",
+            "files": [
+              {
+                "path": "libraries/lwrb/src/lwrb/lwrb.c"
+              },
+              {
+                "path": "libraries/lwrb/src/lwrb/lwrb_ex.c"
+              }
+            ],
+            "folders": []
           }
         ]
       }
@@ -570,7 +582,8 @@
           "libraries/FreeRTOS/include",
           "libraries/FreeRTOS/portable/GCC/ARM_CM4F",
           "libraries/lwmem/src/include",
-          "libraries/Parser"
+          "libraries/Parser",
+          "libraries/lwrb/src/include"
         ],
         "libList": [],
         "defineList": [

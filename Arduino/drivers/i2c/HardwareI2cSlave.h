@@ -1,20 +1,28 @@
 #ifndef _HardWAREI2C_H
 #define _HardWAREI2C_H
-#include "hc32_ll.h"
 
-/* Define I2C unit used for the example */
-#define I2C_UNIT                        (CM_I2C2)
-#define I2C_FCG_USE                     (FCG1_PERIPH_I2C2)
+typedef enum {
+    I2C_OK = 0,        /*!< no error */
+    I2C_ERR_STEP_1,    /*!< step 1 error */
+    I2C_ERR_STEP_2,    /*!< step 2 error */
+    I2C_ERR_STEP_3,    /*!< step 3 error */
+    I2C_ERR_STEP_4,    /*!< step 4 error */
+    I2C_ERR_STEP_5,    /*!< step 5 error */
+    I2C_ERR_STEP_6,    /*!< step 6 error */
+    I2C_ERR_STEP_7,    /*!< step 7 error */
+    I2C_ERR_STEP_8,    /*!< step 8 error */
+    I2C_ERR_STEP_9,    /*!< step 9 error */
+    I2C_ERR_STEP_10,   /*!< step 10 error */
+    I2C_ERR_STEP_11,   /*!< step 11 error */
+    I2C_ERR_STEP_12,   /*!< step 12 error */
+    I2C_ERR_START,     /*!< start error */
+    I2C_ERR_ADDR10,    /*!< addr10 error */
+    I2C_ERR_ADDR,      /*!< addr error */
+    I2C_ERR_STOP,      /*!< stop error */
+    I2C_ERR_ACKFAIL,   /*!< ackfail error */
+    I2C_ERR_TIMEOUT,   /*!< timeout error */
+    I2C_ERR_INTERRUPT, /*!< interrupt error */
 
-/* Define port and pin for SDA and SCL */
-#define I2C_SCL_PORT                    (GPIO_PORT_A)
-#define I2C_SCL_PIN                     (GPIO_PIN_09)
-#define I2C_SDA_PORT                    (GPIO_PORT_A)
-#define I2C_SDA_PIN                     (GPIO_PIN_08)
-#define I2C_GPIO_SCL_FUNC               (GPIO_FUNC_51)
-#define I2C_GPIO_SDA_FUNC               (GPIO_FUNC_50)
-
-int32_t Slave_Initialize(void);
+} i2c_status_type;
 
 #endif
-

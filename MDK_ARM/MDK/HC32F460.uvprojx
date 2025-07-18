@@ -420,11 +420,6 @@
               <FilePath>..\..\platform\core\delay.cpp</FilePath>
             </File>
             <File>
-              <FileName>no_semihost.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\..\platform\newlibc\no_semihost.s</FilePath>
-            </File>
-            <File>
               <FileName>heap_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\core\heap_init.c</FilePath>

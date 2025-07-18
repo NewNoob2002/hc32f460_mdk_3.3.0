@@ -3,9 +3,8 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <SparkFun_Extensible_Message_Parser.h>
-#include "FreeRTOS.h"
+#include <FreeRTOS.h>
 #include "task.h"
-
 /*******************************************************************************
  * Macro definitions
  ******************************************************************************/
@@ -90,24 +89,6 @@ static void i2cSlave_task(void *e)
     if (!custom_parser)
         printf("Failed to initialize the Bt parser");
     while (true) {
-        uint8_t data[256] = {0};
-        //        int32_t ret       = Serial.readBytes(data, sizeof(data));
-        //        if (ret > 0) {
-        //            Serial2.print("Received data: ");
-        //            for (int i = 0; i < sizeof(data); i++) {
-        //                Serial2.print(data[i], HEX);
-        //                sempParseNextByte(custom_parser, data[i]);
-        //            }
-        //            printf("\n");
-        //        }
-        if (Serial2.available()) {
-            int32_t bytes = Serial2.readBytes(data, Serial2.available());
-            for (int i = 0; i < bytes; i++) {
-                Serial2.print(data[i], HEX);
-                //                sempParseNextByte(custom_parser, data[i]);
-            }
-            Serial2.println();
-        }
         vTaskDelay(10); // 每秒检查一次
     }
 }
@@ -128,7 +109,6 @@ int32_t main(void)
     clock_init();
     heap_init();
     Serial.begin(115200);
-    Serial2.begin(115200);
     // cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");
     delay_init();
     // pinMode(PA0, PWM);

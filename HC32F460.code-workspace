@@ -19,7 +19,9 @@
             "*.cpp": "cpp",
             "*.cxx": "cpp",
             "*.cc": "cpp",
-            "cstdio": "cpp"
+            "cstdio": "cpp",
+            "atomic": "c",
+            "cstdint": "c"
         },
         "[yaml]": {
             "editor.insertSpaces": true,
