@@ -283,9 +283,9 @@ extern usart_config_t USART4_config;
 #define SERIAL_1_TX_PIN PA15
 #define SERIAL_1_RX_PIN PA10
 
-#define SERIAL_2_ENABLE 0
-#define SERIAL_2_TX_PIN PB6
-#define SERIAL_2_RX_PIN PB7
+#define SERIAL_2_ENABLE 1
+#define SERIAL_2_TX_PIN PA3
+#define SERIAL_2_RX_PIN PA2
 
 #define SERIAL_3_ENABLE 0
 #define SERIAL_3_TX_PIN PC10

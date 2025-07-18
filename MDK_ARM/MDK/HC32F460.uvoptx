@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>N</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,7 +156,7 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>565</LineNumber>
+          <LineNumber>975</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>6</Address>
           <ByteObject>0</ByteObject>
@@ -166,14 +165,14 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\libraries\FreeRTOS\portable\MemMang\heap_4.c</Filename>
+          <Filename>..\..\libraries\lwmem\src\lwmem\lwmem.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\HC32F460\../../libraries/FreeRTOS/portable/MemMang/heap_4.c\565</Expression>
+          <Expression>\\HC32F460\../../libraries/lwmem/src/lwmem/lwmem.c\975</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>474</LineNumber>
+          <LineNumber>986</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>30</Address>
           <ByteObject>0</ByteObject>
@@ -182,9 +181,9 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_pwc.c</Filename>
+          <Filename>..\..\libraries\lwmem\src\lwmem\lwmem.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\HC32F460\../../platform/ll_drivers/hc32_ll_driver/src/hc32_ll_pwc.c\474</Expression>
+          <Expression>\\HC32F460\../../libraries/lwmem/src/lwmem/lwmem.c\986</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -650,7 +649,7 @@
 
   <Group>
     <GroupName>Arduino</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

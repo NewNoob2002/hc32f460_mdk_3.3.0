@@ -78,7 +78,7 @@ typedef void (*SEMP_EOM_CALLBACK)(P_SEMP_PARSE_STATE parse, // Parser state
 // to a separate SPARTN parser via this callback.
 typedef void (*SEMP_INVALID_DATA_CALLBACK)(P_SEMP_PARSE_STATE parse); // Parser state
 
-typedef size_t (*SEMP_PRINTF_CALLBACK)(const char *format, ...);
+typedef void (*SEMP_PRINTF_CALLBACK)(const char *format, ...);
 
 // Length of the sentence name array
 #define SEMP_NMEA_SENTENCE_NAME_BYTES    16
