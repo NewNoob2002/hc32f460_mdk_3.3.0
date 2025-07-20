@@ -15,6 +15,10 @@
 #define I2C_SLAVE_TX_BUFFER_SIZE 256 /*!< I2C slave buffer size */
 #define I2C_SLAVE_RX_BUFFER_SIZE 512 /*!< I2C slave buffer size */
 
+#define I2C_EVENT_CHECK_NONE             ((uint32_t)0x00000000)    /*!< check flag none */
+#define I2C_EVENT_CHECK_ACKFAIL          ((uint32_t)0x00000001)    /*!< check flag ackfail */
+#define I2C_EVENT_CHECK_STOP             ((uint32_t)0x00000002)    /*!< check flag stop */
+
 typedef enum {
     I2C_OK = 0,        /*!< no error */
     I2C_ERR_STEP_1,    /*!< step 1 error */
@@ -77,4 +81,12 @@ struct i2c_interrupt_config_t {
     func_ptr_t interrupt_handler;
 };
 
+int32_t i2cSlave_init();
+i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint16_t size, uint32_t timeout);
+i2c_status_type i2c_master_transmit_int(i2c_handle_type *hi2c, uint16_t address, uint8_t *pdata, uint16_t size, uint32_t timeout);
+size_t I2C_getcount_rxbuffer();
+size_t I2C_read_rxbuffer(uint8_t *data, uint32_t size);
+size_t I2C_write_txbuffer(const uint8_t *data, uint32_t size);
+
+extern i2c_handle_type i2c_handle_t;
 #endif

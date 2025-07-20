@@ -10,14 +10,14 @@
       <TargetName>debug</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>6240000::V6.24::.\ARMCLANG6_22</pArmCC>
-      <pCCUsed>6240000::V6.24::.\ARMCLANG6_22</pCCUsed>
+      <pArmCC>6160000::V6.16::ARMCLANG</pArmCC>
+      <pCCUsed>6160000::V6.16::ARMCLANG</pCCUsed>
       <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>HC32F460JEUA</Device>
           <Vendor>HDSC</Vendor>
-          <PackID>HDSC.HC32F460.1.0.12</PackID>
+          <PackID>HDSC.HC32F460.1.0.9</PackID>
           <PackURL>https://raw.githubusercontent.com/hdscmcu/pack/master/</PackURL>
           <Cpu>IRAM(0x1FFF8000,0x2F000) IRAM2(0x200F0000,0x1000) IROM(0x00000000,0x80000) IROM2(0x03000C00,0x003FC) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG,USE_FREERTOS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\Parser;..\..\libraries\lwmem\src\include</IncludePath>
+              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\Parser;..\..\libraries\lwmem\src\include;..\..\libraries\lwrb\src\include;..\..\Arduino\drivers\i2c</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -687,6 +687,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Arduino/drivers/i2c</GroupName>
+          <Files>
+            <File>
+              <FileName>HardwareI2cSlave.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\drivers\i2c\HardwareI2cSlave.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Arduino/libraries/Timer0</GroupName>
           <Files>
             <File>
@@ -828,6 +838,21 @@
               <FileName>lwmem.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\..\libraries\lwmem\src\lwmem\lwmem.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Libaries/lwrb</GroupName>
+          <Files>
+            <File>
+              <FileName>lwrb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\libraries\lwrb\src\lwrb\lwrb.c</FilePath>
+            </File>
+            <File>
+              <FileName>lwrb_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\libraries\lwrb\src\lwrb\lwrb_ex.c</FilePath>
             </File>
           </Files>
         </Group>

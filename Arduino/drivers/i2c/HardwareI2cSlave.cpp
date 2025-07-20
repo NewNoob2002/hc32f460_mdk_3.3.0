@@ -13,11 +13,11 @@
 #define I2C_DEBUG_PRINTF(fmt, ...)
 #endif
 
-static lwrb_t rx_rb_t; /*!< Receive ring buffer */
-static lwrb_t tx_rb_t; /*!< Transmit ring buffer */
+static lwrb_t rx_rb_t;     /*!< Receive ring buffer */
+static lwrb_t tx_rb_t;     /*!< Transmit ring buffer */
 uint8_t *rxbuff = nullptr; /*!< pointer to i2c transfer buffer  */
 uint8_t *txbuff = nullptr; /*!< pointer to i2c transfer buffer  */
-static i2c_handle_type i2c_handle_t;
+i2c_handle_type i2c_handle_t;
 //
 // IRQ register / unregister helper
 //
@@ -53,33 +53,135 @@ inline void i2c_irq_resign(i2c_interrupt_config_t &irq, const char *name)
     irqn_aa_resign(irq.interrupt_number, name);
 }
 
-i2c_status_type i2c_slave_receive_int(i2c_handle_type* hi2c, uint8_t* pdata, uint16_t size, uint32_t timeout)
+i2c_status_type i2c_wait_flag(i2c_handle_type *hi2c, uint32_t flag, uint32_t timeout)
 {
-  /* initialization parameters */
-  hi2c->mode   = I2C_INT_SLA_RX;
-  hi2c->status = I2C_START;
-  
-  hi2c->pcount = size;
+    if (flag == I2C_FLAG_BUSY) {
+        while (I2C_GetStatus(I2C_UNIT, flag) != RESET) {
+            /* check timeout */
+            if ((timeout--) == 0) {
+                hi2c->error_code = I2C_ERR_TIMEOUT;
 
-  hi2c->timeout = timeout;
-  hi2c->error_code = I2C_OK;
+                return I2C_ERR_TIMEOUT;
+            }
+        }
+    }
+    return I2C_OK;
+}
 
-  /* wait for the busy flag to be reset */
-  if(i2c_wait_flag(hi2c, I2C_BUSYF_FLAG, I2C_EVENT_CHECK_NONE, timeout) != I2C_OK)
-  {
-    return I2C_ERR_STEP_1;
-  }
+i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint16_t size, uint32_t timeout)
+{
+    /* initialization parameters */
+    hi2c->mode   = I2C_INT_SLA_RX;
+    hi2c->status = I2C_START;
 
-  /* ack acts on the current byte */
-  i2c_master_receive_ack_set(hi2c->i2cx, I2C_MASTER_ACK_CURRENT);
+    hi2c->pcount = size;
 
-  /* enable ack */
-  i2c_ack_enable(hi2c->i2cx, TRUE);
+    hi2c->timeout    = timeout;
+    hi2c->error_code = I2C_OK;
 
-  /* enable interrupt */
-  i2c_interrupt_enable(hi2c->i2cx, I2C_EVT_INT | I2C_DATA_INT | I2C_ERR_INT, TRUE);
+    /* wait for the busy flag to be reset */
+    if (i2c_wait_flag(hi2c, I2C_FLAG_BUSY, timeout) != I2C_OK) {
+        return I2C_ERR_STEP_1;
+    }
 
-  return I2C_OK;
+    /* Config slave address match and receive full interrupt function*/
+    I2C_IntCmd(I2C_UNIT, I2C_INT_MATCH_ADDR0 | I2C_INT_RX_FULL, ENABLE);
+
+    return I2C_OK;
+}
+
+i2c_status_type i2c_master_transmit_int(i2c_handle_type *hi2c, uint16_t address, uint8_t *pdata, uint16_t size, uint32_t timeout)
+{
+    /* initialization parameters */
+    hi2c->mode   = I2C_INT_SLA_TX;
+    hi2c->status = I2C_START;
+
+    hi2c->pcount = size;
+
+    hi2c->timeout    = timeout;
+    hi2c->error_code = I2C_OK;
+
+    /* wait for the busy flag to be reset */
+    if (i2c_wait_flag(hi2c, I2C_FLAG_BUSY, timeout) != I2C_OK) {
+        return I2C_ERR_STEP_1;
+    }
+    /* Config slave address match interrupt function*/
+    I2C_IntCmd(I2C_UNIT, I2C_INT_MATCH_ADDR0, ENABLE);
+
+    return I2C_OK;
+}
+
+void i2c_slave_rx_isr_int(i2c_handle_type *hi2c)
+{
+    if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_MATCH_ADDR0)) {
+        I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR | I2C_CLR_NACKFCLR | I2C_CLR_STOPFCLR);
+        if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+            /* Enable stop and NACK interrupt */
+            I2C_IntCmd(I2C_UNIT, I2C_INT_STOP | I2C_INT_NACK, ENABLE);
+        }
+    } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF)) {
+        /* Clear STOPF flag */
+        I2C_ClearStatus(I2C_UNIT, I2C_CLR_NACKFCLR);
+        /* Config rx buffer full interrupt function disable */
+        if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) { 
+            I2C_IntCmd(I2C_UNIT, I2C_INT_RX_FULL, DISABLE); 
+        }
+    } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_STOP)) {
+        /* If stop interrupt occurred */
+        /* Clear STOPF flag */
+        I2C_ClearStatus(I2C_UNIT, I2C_CLR_STOPFCLR);
+        /* Disable all interrupt enable flag except SLADDR0IE*/
+        I2C_IntCmd(I2C_UNIT, I2C_INT_RX_FULL | I2C_INT_STOP | I2C_INT_NACK, DISABLE);
+        I2C_Cmd(I2C_UNIT, DISABLE);
+        hi2c->status = I2C_END; // Communication finished
+    }
+}
+
+void i2c_slave_tx_isr_int(i2c_handle_type *hi2c)
+{
+    if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_MATCH_ADDR0)) {
+        I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR | I2C_CLR_NACKFCLR | I2C_CLR_STOPFCLR);
+        if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+            /* Enable tx end interrupt function*/
+            I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT| I2C_INT_STOP | I2C_INT_NACK, ENABLE);
+            uint8_t ch = 0;
+            if (lwrb_read(&tx_rb_t, &ch, 1) != 0) {
+                I2C_WriteData(I2C_UNIT, ch);
+            }
+        }
+    } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF)) {
+        I2C_ClearStatus(I2C_UNIT, I2C_CLR_NACKFCLR);
+        if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+            I2C_ClearStatus(I2C_UNIT, I2C_CLR_TENDFCLR);
+            /* Config tx end interrupt function disable*/
+            I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT, DISABLE);
+            /* Read DRR register to release */
+            I2C_ReadData(I2C_UNIT);
+        }
+    } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_STOP)) {
+        /* Clear STOPF flag */
+        I2C_ClearStatus(I2C_UNIT, I2C_CLR_STOPFCLR);
+        /* Disable all interrupt enable flag except SLADDR0IE*/
+        I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT | I2C_INT_STOP | I2C_INT_NACK, DISABLE);
+        hi2c->status = I2C_END; // Communication finished
+        /* If transfer end, disable I2C */
+        I2C_Cmd(I2C_UNIT, DISABLE);
+    }
+}
+
+void i2c_evt_irq_handler(i2c_handle_type *hi2c)
+{
+    switch (hi2c->mode) {
+        case I2C_INT_SLA_TX:
+						printf("rx_int\n");
+            i2c_slave_tx_isr_int(hi2c);
+            break;
+        case I2C_INT_SLA_RX:
+            i2c_slave_rx_isr_int(hi2c);
+            break;
+        default:
+            break;
+    }
 }
 /**
  * @brief   I2C EEI(communication error or event) interrupt callback function
@@ -88,50 +190,7 @@ i2c_status_type i2c_slave_receive_int(i2c_handle_type* hi2c, uint8_t* pdata, uin
  */
 static void I2C_communication_error_event_callback(void)
 {
-    /* If address interrupt occurred */
-    if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_MATCH_ADDR0)) {
-        I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR | I2C_CLR_NACKFCLR | I2C_CLR_STOPFCLR);
-
-        if ((MD_TX == stcI2cCom.enMode) && (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA))) {
-            /* Enable tx end interrupt function*/
-            I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT, ENABLE);
-            /* Write the first data to DTR immediately */
-            I2C_WriteData(I2C_UNIT, BufRead());
-
-            /* Enable stop and NACK interrupt */
-            I2C_IntCmd(I2C_UNIT, I2C_INT_STOP | I2C_INT_NACK, ENABLE);
-        } else if ((MD_RX == stcI2cCom.enMode) && (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA))) {
-            /* Enable stop and NACK interrupt */
-            I2C_IntCmd(I2C_UNIT, I2C_INT_STOP | I2C_INT_NACK, ENABLE);
-        } else {
-        }
-    } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF)) {
-        /* If NACK interrupt occurred */
-        /* clear NACK flag*/
-        I2C_ClearStatus(I2C_UNIT, I2C_CLR_NACKFCLR);
-        /* Stop tx or rx process*/
-        if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
-            /* Config tx end interrupt function disable*/
-            I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT, DISABLE);
-            I2C_ClearStatus(I2C_UNIT, I2C_CLR_TENDFCLR);
-
-            /* Read DRR register to release */
-            (void)I2C_ReadData(I2C_UNIT);
-        } else {
-            /* Config rx buffer full interrupt function disable */
-            I2C_IntCmd(I2C_UNIT, I2C_INT_RX_FULL, DISABLE);
-        }
-    } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_STOP)) {
-        /* If stop interrupt occurred */
-        /* Disable all interrupt enable flag except SLADDR0IE*/
-        I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT | I2C_INT_RX_FULL | I2C_INT_STOP | I2C_INT_NACK, DISABLE);
-        /* Clear STOPF flag */
-        I2C_ClearStatus(I2C_UNIT, I2C_CLR_STOPFCLR);
-        I2C_Cmd(I2C_UNIT, DISABLE);
-        /* Communication finished */
-        stcI2cCom.enComStatus = I2C_COM_IDLE;
-    } else {
-    }
+    i2c_evt_irq_handler(&i2c_handle_t);
 }
 
 /**
@@ -143,7 +202,8 @@ static void I2C_transfer_end_callback(void)
 {
     if ((SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TX_CPLT)) &&
         (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF))) {
-        // I2C_WriteData(I2C_UNIT, BufRead());
+        uint8_t ch = 0;
+        if (lwrb_read(&tx_rb_t, &ch, 1) != 0) { I2C_WriteData(I2C_UNIT, ch); }
     }
 }
 
@@ -155,7 +215,8 @@ static void I2C_transfer_end_callback(void)
 static void I2C_receive_buffer_full_Callback(void)
 {
     if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_RX_FULL)) {
-        // BufWrite(I2C_ReadData(I2C_UNIT));
+        uint8_t ch = I2C_ReadData(I2C_UNIT);
+        lwrb_write(&rx_rb_t, &ch, 1);
     }
 }
 
@@ -188,6 +249,31 @@ void i2c_buffer_init()
     lwrb_reset(&tx_rb_t);
 }
 
+size_t I2C_getcount_rxbuffer()
+{
+    return lwrb_get_full(&rx_rb_t);
+}
+size_t I2C_read_rxbuffer(uint8_t *data, uint32_t size)
+{
+    if (data == nullptr || size == 0)
+    {
+        return 0; // Invalid parameters
+    }
+
+    size_t read_len = lwrb_read(&rx_rb_t, data, size);
+    return read_len;
+}
+
+size_t I2C_write_txbuffer(const uint8_t *data, uint32_t size)
+{
+    if (data == nullptr || size == 0)
+    {
+        return 0; // Invalid parameters
+    }
+    
+    size_t write_len = lwrb_write(&tx_rb_t, data, size);
+    return write_len;
+}
 /**
  * @brief   Initialize the I2C peripheral for slave
  * @param   None
@@ -224,7 +310,7 @@ int32_t i2cSlaveConfig_Initialize()
 
         I2C_Cmd(I2C_UNIT, ENABLE);
         I2C_DEBUG_PRINTF("I2C slave initialized with address 0x%02X\n", I2C_SLAVE_ADDRESS);
-        
+
         return LL_OK;
     }
 
@@ -261,4 +347,5 @@ int32_t i2cSlave_init()
     /* Initialize I2C peripheral */
     int32_t i32Ret = i2cSlaveConfig_Initialize();
     CORE_ASSERT(i32Ret == LL_OK, "Failed to initialize I2C slave");
+    return LL_OK;
 }

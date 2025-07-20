@@ -592,7 +592,8 @@
           "libraries/FreeRTOS/portable/GCC/ARM_CM4F",
           "libraries/lwmem/src/include",
           "libraries/Parser",
-          "libraries/lwrb/src/include"
+          "libraries/lwrb/src/include",
+          "Arduino/drivers/i2c"
         ],
         "libList": [],
         "defineList": [

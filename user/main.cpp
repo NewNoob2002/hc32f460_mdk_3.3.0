@@ -5,6 +5,8 @@
 #include <SparkFun_Extensible_Message_Parser.h>
 #include <FreeRTOS.h>
 #include "task.h"
+
+#include "HardwareI2cSlave.h"
 /*******************************************************************************
  * Macro definitions
  ******************************************************************************/
@@ -89,6 +91,13 @@ static void i2cSlave_task(void *e)
     if (!custom_parser)
         printf("Failed to initialize the Bt parser");
     while (true) {
+				i2c_slave_receive_int(&i2c_handle_t, 256, 3000);
+        // 检查是否有新的数据到来
+        if (I2C_getcount_rxbuffer() > 0) {
+            uint8_t data[256];
+            size_t len = I2C_read_rxbuffer(data, sizeof(data));
+            printf("Received %zu bytes: ", len);
+        }
         vTaskDelay(10); // 每秒检查一次
     }
 }
@@ -116,7 +125,11 @@ int32_t main(void)
     // pinMode(PA0, PWM);
     pinMode(PA1, PWM);
 
-    i2c_buffer_init();
+    if(i2cSlave_init() == LL_OK) {
+        printf("I2C slave initialized successfully.\n");
+    } else {
+        printf("Failed to initialize I2C slave.\n");
+    }
     xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
     xTaskCreate(i2cSlave_task, "I2C Slave Task", 1024 * 3, nullptr, 2, nullptr);
     // 启动调度器
