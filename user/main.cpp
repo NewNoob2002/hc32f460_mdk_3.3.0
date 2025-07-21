@@ -53,7 +53,6 @@ static void test_task(void *e)
         if (breath_angle >= 2 * PI) {
             breath_angle = 0.0;
         }
-
         vTaskDelay(10); // 延时10ms，避免任务过于频繁
     }
 }
@@ -96,14 +95,26 @@ static void i2cSlave_task(void *e)
             size_t len = I2C_read_rxbuffer(data, sizeof(data));
             printf("Received %zu bytes: ", len);
         }
-        vTaskDelay(10); // 每秒检查一次
+        vTaskDelay(10);
     }
 }
 
 static void WatchDog_Task(void *e)
 {
     while (true) {
-        uint8_t buffer[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+       uint8_t buffer[] = {0xAA, 0x44, 0x18, 0x14, 0x0D, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 
+                0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 
+                0x01, 0x01, 0x00, 0x00, 0x00, 0xC2, 0x01, 
+                0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 
+                0xDA, 0x00, 0x01, 0x01, 0xE1, 0x00, 0x00, 
+                0x00, 0xDF, 0x00, 0x00, 0x00, 0xDE, 0x00, 
+                0x00, 0x00, 0xE2, 0x00, 0x00, 0x00, 0xCB, 
+                0x03, 0x00, 0x00, 0xCC, 0x03, 0x00, 0x00, 
+                0xCD, 0x03, 0x00, 0x00, 0xCE, 0x03, 0x00, 
+                0x00, 0xE8, 0x61, 0x38, 0x0A};
         SPI1.push_inDMA(buffer,sizeof(buffer));
         vTaskDelay(1000);
     }
@@ -121,21 +132,15 @@ int32_t main(void)
     Serial.begin(115200);
     // cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");
     delay_init();
-
     SPI1.set_pins(PA5, PA6, PA7);
     SPI1.begin(12500000, true);
-    // pinMode(PA0, PWM);
     pinMode(PA1, PWM);
-
-    if(i2cSlave_init() == LL_OK) {
-        printf("I2C slave initialized successfully.\n");
-    } else {
-        printf("Failed to initialize I2C slave.\n");
-    }
+    i2cSlave_init();
+    //Task Create
     xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
     xTaskCreate(WatchDog_Task, "WatchDog Task", 1024 * 1, nullptr, 2, &WatchDog_TaskHandle);
     xTaskCreate(i2cSlave_task, "I2C Slave Task", 1024 * 3, nullptr, 2, nullptr);
-    // 启动调度器
+    // Start the FreeRTOS scheduler
     vTaskStartScheduler();
     while (true) {}
 }

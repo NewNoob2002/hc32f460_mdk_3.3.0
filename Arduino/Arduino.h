@@ -42,7 +42,7 @@ extern "C"{
 #endif // __cplusplus
 
 #include "wiring_constants.h"
-#include "yield.h"
+#include <yield.h>
 
   /* sketch */
 //void setup( void ) ;

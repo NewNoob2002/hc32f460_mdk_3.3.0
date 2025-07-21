@@ -20,7 +20,7 @@ class SPIClass
 public:
     SPIClass(spi_config_t *config)
     {
-        this->config = config;
+        this->spi_config = config;
     }
     inline void set_mosi_pin(const gpio_pin_t pin)
     {
@@ -144,7 +144,8 @@ public:
     }
 
 private:
-    spi_config_t *config = NULL; // Pointer to SPI configuration
+    bool isInitialized = false; // Flag to check if SPI is initialized
+    spi_config_t *spi_config = NULL; // Pointer to SPI configuration
     gpio_pin_t mosi_pin;
     gpio_pin_t miso_pin;
     gpio_pin_t clock_pin;

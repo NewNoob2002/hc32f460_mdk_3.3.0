@@ -6,20 +6,18 @@
  */
 #include <hc32_ll.h>
 
-typedef struct dma_config_t
-{
+typedef struct dma_config_t {
     CM_DMA_TypeDef *register_base; // Base address of the DMA peripheral
-    uint32_t clock_id;    // Clock ID for the DMA peripheral
-    uint8_t channel;  // DMA channel DMA_CH0-DMA_CH3
+    uint32_t clock_id;             // Clock ID for the DMA peripheral
+    uint8_t channel;               // DMA channel DMA_CH0-DMA_CH3
 } dma_config_t;
 
-typedef struct spi_config_t
-{
+typedef struct spi_peripheral_config_t {
     /**
      * @brief The base address of the SPI peripheral.
      */
     CM_SPI_TypeDef *register_base;
-    
+
     /**
      * @brief SPI peripheral channel.
      */
@@ -39,11 +37,17 @@ typedef struct spi_config_t
      * @brief SPI peripheral SCK pin function
      */
     uint16_t sck_func;
+} spi_peripheral_config_t;
 
+typedef struct spi_config_t {
+    /*
+     * @brief The SPI peripheral configuration.
+     */
+    spi_peripheral_config_t peripheral; // SPI peripheral configuration
     /**
      * @brief DMA configuration for the SPI peripheral.
      */
-    dma_config_t dma_config; // DMA configuration for the SPI peripheral
+    dma_config_t tx_dma_config; // DMA configuration for the SPI peripheral
 } spi_config_t;
 
 /**
