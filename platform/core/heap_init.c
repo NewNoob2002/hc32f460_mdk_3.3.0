@@ -25,6 +25,7 @@ void *my_malloc(size_t size)
     void *ptr = lwmem_malloc(size);
     if (ptr == NULL) {
         printf("Memory allocation failed for size %zu\r\n", size);
+				return NULL;
     }
     return ptr;
 }

@@ -302,11 +302,11 @@ int32_t i2cSlaveConfig_Initialize()
         /* Set slave address*/
         I2C_SlaveAddrConfig(I2C_UNIT, I2C_ADDR0, I2C_ADDR_7BIT, I2C_SLAVE_ADDRESS);
         /* Enable I2C peripheral */
-        i2c_irq_register(event_error_irq, "I2C1_EEI_IRQ");
+        i2c_irq_register(event_error_irq, "i2c1_event_error_irq",DDL_IRQ_PRIO_05);
 
-        i2c_irq_register(transfer_end_irq, "I2C1_TEI_IRQ");
+        i2c_irq_register(transfer_end_irq, "i2c1_transfer_end_irq", DDL_IRQ_PRIO_08);
 
-        i2c_irq_register(receive_buffer_full_irq, "I2C1_RXI_IRQ");
+        i2c_irq_register(receive_buffer_full_irq, "i2c1_receive_buffer_full_irq", DDL_IRQ_PRIO_08);
 
         I2C_Cmd(I2C_UNIT, ENABLE);
         I2C_DEBUG_PRINTF("I2C slave initialized with address 0x%02X\n", I2C_SLAVE_ADDRESS);

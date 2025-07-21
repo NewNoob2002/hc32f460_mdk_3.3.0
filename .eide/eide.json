@@ -115,6 +115,9 @@
               },
               {
                 "path": "platform/ll_drivers/hc32_ll_driver/src/hc32_ll_fcm.c"
+              },
+              {
+                "path": "platform/ll_drivers/hc32_ll_driver/src/hc32_ll_aos.c"
               }
             ],
             "folders": []
@@ -249,6 +252,18 @@
                 "files": [
                   {
                     "path": "Arduino/drivers/i2c/HardwareI2cSlave.cpp"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "spi",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/spi/SPI.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/spi/spi_config.cpp"
                   }
                 ],
                 "folders": []
