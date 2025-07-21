@@ -58,15 +58,15 @@ extern "C"{
 #ifdef __cplusplus
 #include "WCharacter.h"
 #include "WString.h"
-//#include "Tone.h"
+#include "Tone.h"
 #include "WMath.h"
 #include "HardwareSerial.h"
+#include "drivers/spi/SPI.h"
 #include "libaries/IWatchdog/IWatchdog.h"
 #include "libaries/TrueRandom/TrueRandom.h"
 #include "libaries/Timer0/src/Timer0.h"
-// #include "RingBuf.h"
 #include "Stream.h"
-//#include "pulse.h"
+#include "pulse.h"
 #endif
 
 #ifdef __cplusplus
@@ -76,10 +76,12 @@ extern "C"{
 #endif
 
 
-//#include "wiring_shift.h"
+#include "wiring_shift.h"
 //#include "WInterrupts.h"
+#ifdef USE_FREERTOS
 #include <FreeRTOS.h>
 #include "task.h"
+#endif
 #include "heap_init.h"
 // undefine stdlib's abs if encountered
 #ifdef abs

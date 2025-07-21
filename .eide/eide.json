@@ -168,6 +168,9 @@
           },
           {
             "path": "Arduino/wiring_analog.cpp"
+          },
+          {
+            "path": "Arduino/wiring_shift.cpp"
           }
         ],
         "folders": [

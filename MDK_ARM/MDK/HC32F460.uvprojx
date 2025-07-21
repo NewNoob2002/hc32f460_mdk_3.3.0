@@ -580,6 +580,16 @@
               <FilePath>..\..\Arduino\wiring_digital.cpp</FilePath>
             </File>
             <File>
+              <FileName>wiring_analog.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\wiring_analog.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>wiring_shift.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\wiring_shift.cpp</FilePath>
+            </File>
+            <File>
               <FileName>WMath.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\..\Arduino\WMath.cpp</FilePath>
@@ -598,11 +608,6 @@
               <FileName>dtostrf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Arduino\avr\dtostrf.c</FilePath>
-            </File>
-            <File>
-              <FileName>wiring_analog.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\..\Arduino\wiring_analog.cpp</FilePath>
             </File>
           </Files>
         </Group>

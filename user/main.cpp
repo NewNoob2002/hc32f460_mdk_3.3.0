@@ -5,7 +5,6 @@
 #include <SparkFun_Extensible_Message_Parser.h>
 
 #include "HardwareI2cSlave.h"
-#include "drivers/spi/SPI.h"
 /*******************************************************************************
  * Macro definitions
  ******************************************************************************/
@@ -130,7 +129,6 @@ int32_t main(void)
     clock_init();
     heap_init();
     Serial.begin(115200);
-    // cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");
     delay_init();
     SPI1.set_pins(PA5, PA6, PA7);
     SPI1.begin(12500000, true);
