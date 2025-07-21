@@ -1,13 +1,19 @@
 #include "SPI.h"
-#include <core_debug.h>
+#include "hc32_ll_dma.h"
 #include <Arduino.h>
 #include <drivers/gpio/gpio.h>
+
+#define SPI_TO_EVENT_SRC(spi_base)                                                         \
+    ((spi_base == CM_SPI1) ? EVT_SRC_SPI1_SPTI : (spi_base == CM_SPI2) ? EVT_SRC_SPI2_SPTI \
+                                             : (spi_base == CM_SPI3)   ? EVT_SRC_SPI3_SPTI \
+                                             : (spi_base == CM_SPI4)   ? EVT_SRC_SPI4_SPTI \
+                                                                       : 0)
 
 SPIClass SPI1(&SPI1_config);
 
 uint32_t dma_to_aos(CM_DMA_TypeDef *dma_base, uint8_t channel)
 {
-    if(dma_base == CM_DMA1) {
+    if (dma_base == CM_DMA1) {
         switch (channel) {
             case DMA_CH0:
                 return AOS_DMA1_0;
@@ -45,6 +51,8 @@ void SPIClass::begin(const uint32_t frequency, const bool enable_DMA)
     stc_irq_signin_config_t stcIrqSignConfig;
 
     setClockFrequency(frequency);
+    this->enableDMA = enable_DMA;
+
     GPIO_StructInit(&stcGpioInit);
     stcGpioInit.u16PinDrv = PIN_HIGH_DRV;
     _GPIO_Init(this->clock_pin, &stcGpioInit);
@@ -62,12 +70,13 @@ void SPIClass::begin(const uint32_t frequency, const bool enable_DMA)
     stcSpiInit.u32MasterSlave       = SPI_MASTER;
     stcSpiInit.u32Parity            = SPI_PARITY_INVD;
     stcSpiInit.u32SpiMode           = SPI_MD_1;
-    stcSpiInit.u32BaudRatePrescaler = SPI_BR_CLK_DIV64;
+    stcSpiInit.u32BaudRatePrescaler = this->divider;
     stcSpiInit.u32DataBits          = SPI_DATA_SIZE_8BIT;
     stcSpiInit.u32FirstBit          = SPI_FIRST_MSB;
     stcSpiInit.u32FrameLevel        = SPI_1_FRAME;
     if (LL_OK == SPI_Init(this->config->register_base, &stcSpiInit)) {
         CORE_DEBUG_PRINTF("SPI initialized successfully.\n");
+        printf_config();
         if (this->enableDMA) {
             FCG_Fcg0PeriphClockCmd(this->config->dma_config.clock_id, ENABLE);
             DMA_StructInit(&stcDmaInit);
@@ -83,15 +92,60 @@ void SPIClass::begin(const uint32_t frequency, const bool enable_DMA)
                 CORE_DEBUG_PRINTF("Failed to initialize DMA for SPI.\n");
             } else {
                 CORE_DEBUG_PRINTF("DMA initialized successfully for SPI.\n");
-            }
-            AOS_SetTriggerEventSrc(
-                            dma_to_aos(this->config->dma_config.register_base, this->config->dma_config.channel), 
-                            EVT_SRC_SPI1_SPTI);
+                AOS_SetTriggerEventSrc(
+                    dma_to_aos(this->config->dma_config.register_base, this->config->dma_config.channel),
+                    (en_event_src_t)SPI_TO_EVENT_SRC(this->config->register_base));
                 /* Enable DMA and channel */
-            DMA_Cmd(this->config->dma_config.register_base, ENABLE);
-            DMA_ChCmd(this->config->dma_config.register_base, this->config->dma_config.channel, ENABLE);
+                DMA_Cmd(this->config->dma_config.register_base, ENABLE);
+                DMA_ChCmd(this->config->dma_config.register_base, this->config->dma_config.channel, ENABLE);
+            }
         }
     } else {
         CORE_DEBUG_PRINTF("Failed to initialize SPI.\n");
+    }
+}
+
+void SPIClass::end()
+{
+    if (this->enableDMA) {
+        DMA_ChCmd(this->config->dma_config.register_base, this->config->dma_config.channel, DISABLE);
+        DMA_Cmd(this->config->dma_config.register_base, DISABLE);
+    }
+    SPI_DeInit(this->config->register_base);
+    FCG_Fcg1PeriphClockCmd(this->config->clock_id, DISABLE);
+}
+
+void SPIClass::send(const uint32_t data)
+{
+    SPI_Cmd(this->config->register_base, ENABLE);
+    while (SPI_GetStatus(this->config->register_base, SPI_FLAG_TX_BUF_EMPTY) == RESET) {
+        // Wait until the TX buffer is empty
+        vTaskDelay(1); // Add a small delay to avoid busy waiting
+    }
+    WRITE_REG32(this->config->register_base->DR, data);
+}
+
+uint32_t SPIClass::receive()
+{
+    SPI_Cmd(this->config->register_base, ENABLE);
+    // no need do now
+    return 0; // Return 0 if no data is received
+}
+void SPIClass::push_inDMA(const uint8_t *buffer, const size_t count)
+{
+    if (this->enableDMA) {
+        /* Disable SPI */
+        SPI_Cmd(this->config->register_base, DISABLE);
+        DMA_SetSrcAddr(this->config->dma_config.register_base, this->config->dma_config.channel, (uint32_t)buffer);
+        DMA_SetTransCount(this->config->dma_config.register_base, this->config->dma_config.channel, count);
+        DMA_ChCmd(this->config->dma_config.register_base, this->config->dma_config.channel, ENABLE);
+        SPI_Cmd(this->config->register_base, ENABLE);
+        // Wait for the DMA transfer to complete
+        while (DMA_GetTransStatus(this->config->dma_config.register_base, DMA_FLAG_TC_CH0)) {
+            // Wait until DMA transfer is complete
+            vTaskDelay(1); // Add a small delay to avoid busy waiting
+        }
+    } else {
+        CORE_DEBUG_PRINTF("DMA is not enabled for SPI.\n");
     }
 }

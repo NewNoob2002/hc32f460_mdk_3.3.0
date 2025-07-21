@@ -2,6 +2,7 @@
 #include "drivers/sysclock/sysclock.h"
 #include "spi_config.h"
 #include <core_types.h>
+#include <core_debug.h>
 // SPI_HAS_TRANSACTION means SPI has
 //   - beginTransaction()
 //   - endTransaction()
@@ -42,23 +43,23 @@ public:
 
     void calculate_FrequencyToDivider(const uint32_t frequency, uint16_t &cal_divider)
     {
-        uint16_t divider = SYSTEM_CLOCK_FREQUENCIES.pclk0 / frequency;
+        uint16_t divider = SYSTEM_CLOCK_FREQUENCIES.pclk1 / frequency;
         if (divider <= 2) {
-            divider = SPI_BR_CLK_DIV2; // Minimum divider value
+            cal_divider = SPI_BR_CLK_DIV2; // Minimum divider value
         } else if (divider > 2 && divider <= 4) {
-            divider = SPI_BR_CLK_DIV4; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV4; // Adjust to next valid divider
         } else if (divider > 4 && divider <= 8) {
-            divider = SPI_BR_CLK_DIV8; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV8; // Adjust to next valid divider
         } else if (divider > 8 && divider <= 16) {
-            divider = SPI_BR_CLK_DIV16; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV16; // Adjust to next valid divider
         } else if (divider > 16 && divider <= 32) {
-            divider = SPI_BR_CLK_DIV32; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV32; // Adjust to next valid divider
         } else if (divider > 32 && divider <= 64) {
-            divider = SPI_BR_CLK_DIV64; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV64; // Adjust to next valid divider
         } else if (divider > 64 && divider <= 128) {
-            divider = SPI_BR_CLK_DIV128; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV128; // Adjust to next valid divider
         } else if (divider > 128 && divider <= 256) {
-            divider = SPI_BR_CLK_DIV256; // Adjust to next valid divider
+            cal_divider = SPI_BR_CLK_DIV256; // Adjust to next valid divider
         }
     }
 
@@ -66,6 +67,36 @@ public:
     {
         this->frequency = frequency;
         calculate_FrequencyToDivider(frequency, this->divider);
+    }
+
+    const char *getClockDivider()
+    {
+        switch (this->divider) {
+            case SPI_BR_CLK_DIV2: {
+                return "DIV2";
+            }
+            case SPI_BR_CLK_DIV4: {
+                return "DIV4";
+            }
+            case SPI_BR_CLK_DIV8: {
+                return "DIV8";
+            }
+            case SPI_BR_CLK_DIV16: {
+                return "DIV16";
+            }
+            case SPI_BR_CLK_DIV32: {
+                return "DIV32";
+            }
+            case SPI_BR_CLK_DIV64: {
+                return "DIV64";
+            }
+            case SPI_BR_CLK_DIV128: {
+                return "DIV128";
+            }
+            default:
+                break;
+        }
+        return NULL; // Invalid divider
     }
 
     inline uint32_t getClockFrequency() const
@@ -81,34 +112,36 @@ public:
 
     void end();
 
-    inline uint8_t transfer(const uint8_t data)
+    inline void write8(const uint8_t data)
     {
         send(static_cast<uint32_t>(data));
-        return static_cast<uint8_t>(receive());
     }
-
-    inline uint16_t transfer16(const uint16_t data)
+    inline void write16(const uint16_t data)
     {
         send(static_cast<uint32_t>(data));
-        return static_cast<uint16_t>(receive());
     }
-
-    inline uint32_t transfer32(const uint32_t data)
+    inline void write32(const uint32_t data)
     {
         send(data);
-        return receive();
     }
-
-    inline void transfer(uint8_t *buffer, const size_t count)
+    inline void write(const uint8_t *buffer, const size_t count)
     {
         for (size_t i = 0; i < count; i++) {
-            *buffer = transfer(*buffer);
-            buffer++;
+            send(static_cast<uint32_t>(buffer[i]));
         }
     }
-    void beginTransaction();
 
-    void endTransaction();
+    void push_inDMA(const uint8_t *buffer, const size_t count);
+
+    void printf_config()
+    {
+        CORE_DEBUG_PRINTF("SPI Configuration:\n");
+        CORE_DEBUG_PRINTF("  Clock Frequency: %u Hz\n", this->frequency);
+        CORE_DEBUG_PRINTF("  Divider: %s\n", getClockDivider());
+        CORE_DEBUG_PRINTF("  MOSI Pin: %d\n", this->mosi_pin);
+        CORE_DEBUG_PRINTF("  MISO Pin: %d\n", this->miso_pin);
+        CORE_DEBUG_PRINTF("  Clock Pin: %d\n", this->clock_pin);
+    }
 
 private:
     spi_config_t *config = NULL; // Pointer to SPI configuration

@@ -3,10 +3,9 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <SparkFun_Extensible_Message_Parser.h>
-#include <FreeRTOS.h>
-#include "task.h"
 
 #include "HardwareI2cSlave.h"
+#include "drivers/spi/SPI.h"
 /*******************************************************************************
  * Macro definitions
  ******************************************************************************/
@@ -86,7 +85,6 @@ static void i2cSlave_task(void *e)
                                     1024 * 3,
                                     customParserCallback,
                                     "BluetoothDebug",
-                                    parser_prinf_callback,
                                     parser_prinf_callback);
     if (!custom_parser)
         printf("Failed to initialize the Bt parser");
@@ -105,7 +103,8 @@ static void i2cSlave_task(void *e)
 static void WatchDog_Task(void *e)
 {
     while (true) {
-        WDT.reload();
+        uint8_t buffer[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+        SPI1.push_inDMA(buffer,sizeof(buffer));
         vTaskDelay(1000);
     }
 }
@@ -122,6 +121,9 @@ int32_t main(void)
     Serial.begin(115200);
     // cm_backtrace_init("HC32F460", "1.0.0", "1.0.0");
     delay_init();
+
+    SPI1.set_pins(PA5, PA6, PA7);
+    SPI1.begin(12500000, true);
     // pinMode(PA0, PWM);
     pinMode(PA1, PWM);
 
@@ -131,6 +133,7 @@ int32_t main(void)
         printf("Failed to initialize I2C slave.\n");
     }
     xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
+    xTaskCreate(WatchDog_Task, "WatchDog Task", 1024 * 1, nullptr, 2, &WatchDog_TaskHandle);
     xTaskCreate(i2cSlave_task, "I2C Slave Task", 1024 * 3, nullptr, 2, nullptr);
     // 启动调度器
     vTaskStartScheduler();

@@ -544,6 +544,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_trng.c</FilePath>
             </File>
+            <File>
+              <FileName>hc32_ll_aos.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ll_drivers\hc32_ll_driver\src\hc32_ll_aos.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -687,12 +692,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Arduino/drivers/i2c</GroupName>
+          <GroupName>Arduino/drivers/I2C</GroupName>
           <Files>
             <File>
               <FileName>HardwareI2cSlave.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\..\Arduino\drivers\i2c\HardwareI2cSlave.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Arduino/drivers/SPI</GroupName>
+          <Files>
+            <File>
+              <FileName>SPI.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\drivers\spi\SPI.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>spi_config.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\drivers\spi\spi_config.cpp</FilePath>
             </File>
           </Files>
         </Group>

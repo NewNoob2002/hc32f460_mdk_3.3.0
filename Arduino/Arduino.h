@@ -78,6 +78,8 @@ extern "C"{
 
 //#include "wiring_shift.h"
 //#include "WInterrupts.h"
+#include <FreeRTOS.h>
+#include "task.h"
 #include "heap_init.h"
 // undefine stdlib's abs if encountered
 #ifdef abs
