@@ -141,7 +141,7 @@ void adc_await_conversion_completed(const adc_device_t *device, uint32_t timeOut
 {
     ASSERT_INITIALIZED(device, STRINGIFY(adc_await_conversion_completed));
     while (!adc_is_conversion_completed(device)) {
-        yield();
+        yield(__func__);
         if (millis() - ADC1_startCov_time >= timeOut) {
             break;
         }

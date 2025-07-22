@@ -14,7 +14,17 @@
             "path": "user/main.cpp"
           }
         ],
-        "folders": []
+        "folders": [
+          {
+            "name": "src",
+            "files": [
+              {
+                "path": "user/src/display.cpp"
+              }
+            ],
+            "folders": []
+          }
+        ]
       },
       {
         "name": "platform",

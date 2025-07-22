@@ -17,6 +17,7 @@
 */
 #include <stdio.h>
 #include "core_hooks.h"
+#include "delay.h"
 #ifdef USE_FREERTOS
 #include <FreeRTOS.h>
 #include <task.h>
@@ -30,13 +31,8 @@
  * Its defined as a weak symbol and it can be redefined to implement a
  * real cooperative scheduler.
  */
-static void __empty()
-{
-    printf("yield() called\n");
-    #ifdef USE_FREERTOS
-    vTaskDelay(1); // Yield to allow other tasks to run
-    #endif
+void yield(const char *func){
+    // printf("yield() called by function: %s\n", func);
     // wdt reload
     core_hook_yield_wdt_reload();
 }
-void yield(void) __attribute__((weak, alias("__empty")));

@@ -5,6 +5,7 @@
 #include <SparkFun_Extensible_Message_Parser.h>
 
 #include "HardwareI2cSlave.h"
+#include "display.h"
 /*******************************************************************************
  * Macro definitions
  ******************************************************************************/
@@ -101,20 +102,7 @@ static void i2cSlave_task(void *e)
 static void WatchDog_Task(void *e)
 {
     while (true) {
-       uint8_t buffer[] = {0xAA, 0x44, 0x18, 0x14, 0x0D, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 
-                0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 
-                0x01, 0x01, 0x00, 0x00, 0x00, 0xC2, 0x01, 
-                0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 
-                0xDA, 0x00, 0x01, 0x01, 0xE1, 0x00, 0x00, 
-                0x00, 0xDF, 0x00, 0x00, 0x00, 0xDE, 0x00, 
-                0x00, 0x00, 0xE2, 0x00, 0x00, 0x00, 0xCB, 
-                0x03, 0x00, 0x00, 0xCC, 0x03, 0x00, 0x00, 
-                0xCD, 0x03, 0x00, 0x00, 0xCE, 0x03, 0x00, 
-                0x00, 0xE8, 0x61, 0x38, 0x0A};
-        SPI1.push_inDMA(buffer,sizeof(buffer));
+        LCD_Clear(RED);
         vTaskDelay(1000);
     }
 }
@@ -130,10 +118,10 @@ int32_t main(void)
     heap_init();
     Serial.begin(115200);
     delay_init();
-    SPI1.set_pins(PA5, PA6, PA7);
-    SPI1.begin(12500000, true);
+    LCD_Init();
+    LCD_Clear(RED);
     pinMode(PA1, PWM);
-    i2cSlave_init();
+    // i2cSlave_init();
     //Task Create
     xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
     xTaskCreate(WatchDog_Task, "WatchDog Task", 1024 * 1, nullptr, 2, &WatchDog_TaskHandle);

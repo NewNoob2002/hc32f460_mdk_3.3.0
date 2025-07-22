@@ -27,6 +27,7 @@
     CORE_DEBUG_PRINTF("[SPI%d] " fmt, SPI_REG_TO_X(this->spi_config->peripheral.register_base), ##__VA_ARGS__)
 
 SPIClass SPI1(&SPI1_config);
+SPIClass SPI3(&SPI3_config);
 
 uint32_t dma_to_aos(CM_DMA_TypeDef *dma_base, uint8_t channel)
 {
@@ -74,18 +75,29 @@ void SPIClass::begin(const uint32_t frequency, const bool enable_DMA)
     stcGpioInit.u16PinDrv = PIN_HIGH_DRV;
     _GPIO_Init(this->clock_pin, &stcGpioInit);
     _GPIO_Init(this->mosi_pin, &stcGpioInit);
-    _GPIO_Init(this->miso_pin, &stcGpioInit);
+    if (this->miso_pin != 0xff) // Check if MISO pin is set
+    {
+        _GPIO_Init(this->miso_pin, &stcGpioInit);
+    }
     // Additional initialization code can be added here
     GPIO_SetFunction(this->clock_pin, this->spi_config->peripheral.sck_func);
     GPIO_SetFunction(this->mosi_pin, this->spi_config->peripheral.mosi_func);
-    GPIO_SetFunction(this->miso_pin, this->spi_config->peripheral.miso_func);
+    if (this->miso_pin != 0xff) // Check if MISO pin is set
+    {
+        GPIO_SetFunction(this->miso_pin, this->spi_config->peripheral.miso_func);
+    }
 
     FCG_Fcg1PeriphClockCmd(this->spi_config->peripheral.clock_id, ENABLE);
     SPI_StructInit(&stcSpiInit);
-    stcSpiInit.u32WireMode          = SPI_3_WIRE;
-    stcSpiInit.u32TransMode         = SPI_FULL_DUPLEX;
+    stcSpiInit.u32WireMode = SPI_3_WIRE;
+    if (this->miso_pin != 0xff) // Check if MISO pin is set
+    {
+        stcSpiInit.u32TransMode = SPI_FULL_DUPLEX;
+    } else {
+        stcSpiInit.u32TransMode = SPI_SEND_ONLY;
+    }
     stcSpiInit.u32MasterSlave       = SPI_MASTER;
-    stcSpiInit.u32Parity            = SPI_PARITY_INVD;
+    stcSpiInit.u32Parity            = SPI_PARITY_EVEN;
     stcSpiInit.u32SpiMode           = SPI_MD_1;
     stcSpiInit.u32BaudRatePrescaler = this->divider;
     stcSpiInit.u32DataBits          = SPI_DATA_SIZE_8BIT;
@@ -94,6 +106,7 @@ void SPIClass::begin(const uint32_t frequency, const bool enable_DMA)
     if (LL_OK == SPI_Init(this->spi_config->peripheral.register_base, &stcSpiInit)) {
         this->isInitialized = true;
         SPI_DEBUG_PRINTF("initialized successfully.\n");
+        printf_config();
         if (this->enableDMA) {
             FCG_Fcg0PeriphClockCmd(this->spi_config->tx_dma_config.clock_id, ENABLE);
             DMA_StructInit(&stcDmaInit);
@@ -134,20 +147,20 @@ void SPIClass::end()
 
 void SPIClass::send(const uint32_t data)
 {
-    if(!this->isInitialized) {
+    if (!this->isInitialized) {
         return;
     }
     SPI_Cmd(this->spi_config->peripheral.register_base, ENABLE);
     while (SPI_GetStatus(this->spi_config->peripheral.register_base, SPI_FLAG_TX_BUF_EMPTY) == RESET) {
         // Wait until the TX buffer is empty
-        yield(); // Yield to allow other tasks to run
+        yield(__func__); // Yield to allow other tasks to run
     }
     WRITE_REG32(this->spi_config->peripheral.register_base->DR, data);
 }
 
 uint32_t SPIClass::receive()
 {
-    if(!this->isInitialized) {
+    if (!this->isInitialized) {
         return 0;
     }
     SPI_Cmd(this->spi_config->peripheral.register_base, ENABLE);
@@ -156,7 +169,7 @@ uint32_t SPIClass::receive()
 }
 void SPIClass::push_inDMA(const uint8_t *buffer, const size_t count)
 {
-    if(!this->isInitialized) {
+    if (!this->isInitialized) {
         return;
     }
     if (this->enableDMA) {
@@ -167,10 +180,11 @@ void SPIClass::push_inDMA(const uint8_t *buffer, const size_t count)
         DMA_ChCmd(this->spi_config->tx_dma_config.register_base, this->spi_config->tx_dma_config.channel, ENABLE);
         SPI_Cmd(this->spi_config->peripheral.register_base, ENABLE);
         // Wait for the DMA transfer to complete
-        while (DMA_GetTransStatus(this->spi_config->tx_dma_config.register_base, DMA_CH_TO_TC_FLAG(this->spi_config->tx_dma_config.channel))) {
+        while (DMA_GetTransCompleteStatus(this->spi_config->tx_dma_config.register_base, DMA_CH_TO_TC_FLAG(this->spi_config->tx_dma_config.channel)) == RESET) {
             // Wait until DMA transfer is complete
-            yield(); // Yield to allow other tasks to run
+            yield(__func__); // Yield to allow other tasks to run
         }
+        DMA_ClearTransCompleteStatus(this->spi_config->tx_dma_config.register_base, DMA_CH_TO_TC_FLAG(this->spi_config->tx_dma_config.channel));
     } else {
         SPI_DEBUG_PRINTF("DMA is not enabled for SPI.\n");
     }

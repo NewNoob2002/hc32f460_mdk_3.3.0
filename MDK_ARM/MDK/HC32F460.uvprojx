@@ -392,6 +392,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>user/src</GroupName>
+          <Files>
+            <File>
+              <FileName>display.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\user\src\display.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>platform/cmsis</GroupName>
           <Files>
             <File>

@@ -170,3 +170,5 @@ private:
     uint32_t receive();
 };
 extern SPIClass SPI1;
+extern SPIClass SPI2;
+extern SPIClass SPI3;

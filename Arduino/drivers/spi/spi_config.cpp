@@ -2,10 +2,14 @@
 #include "hc32f460.h"
 #include <drivers/gpio/gpio.h>
 
-#define SPI1_ENABLE_DMA 1
+#define SPI1_ENABLE_DMA 0
+#define SPI3_ENABLE_DMA 1
 
 #if defined(SPI1_ENABLE_DMA) && SPI1_ENABLE_DMA
 #warning "SPI1 DMA is enabled, ensure DMA is properly configured in your project settings."
+#endif
+#if defined(SPI3_ENABLE_DMA) && SPI3_ENABLE_DMA
+#warning "SPI3 DMA is enabled, ensure DMA is properly configured in your project settings."
 #endif
 
 spi_config_t SPI1_config = {

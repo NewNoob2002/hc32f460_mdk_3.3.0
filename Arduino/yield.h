@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-    void yield(void);
+   void yield(const char *func);
 
 #ifdef __cplusplus
 }
