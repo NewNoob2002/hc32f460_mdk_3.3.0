@@ -707,12 +707,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Arduino/drivers/I2C</GroupName>
+          <GroupName>Arduino/drivers/Wire</GroupName>
           <Files>
             <File>
               <FileName>HardwareI2cSlave.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\..\Arduino\drivers\i2c\HardwareI2cSlave.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Wire.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\Arduino\drivers\i2c\Wire.cpp</FilePath>
             </File>
           </Files>
         </Group>

@@ -61,8 +61,7 @@ static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
     uint16_t messageId                = messageHeader->messageId;
     uint8_t messageType               = messageHeader->messageType;
 
-    for(int i = 0; i < parse->length; i++)
-    {
+    for (int i = 0; i < parse->length; i++) {
         CORE_DEBUG_PRINTF("%02x ", parse->buffer[i]);
     }
     CORE_DEBUG_PRINTF("\n");
@@ -99,31 +98,39 @@ int32_t main(void)
     Serial.begin(115200);
     delay_init();
     pinMode(PA0, OUTPUT);
-    i2cSlave_init();
-    memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
-    custom_parser = sempBeginParser(customParserTable,
-                                    customParserCount,
-                                    customParserNames,
-                                    customParserNameCount,
-                                    0,
-                                    1024 * 3,
-                                    customParserCallback,
-                                    "BluetoothDebug",
-                                    parser_prinf_callback,
-                                    parser_prinf_callback);
-    if (!custom_parser)
-        CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
+    Wire.begin();
+    if (Wire.isDeviceOnline(0x0B)) {
+        CORE_DEBUG_PRINTF("found 0x0b\n");
+    }
+    // i2cSlave_init();
+    // memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
+    // custom_parser = sempBeginParser(customParserTable,
+    //                                 customParserCount,
+    //                                 customParserNames,
+    //                                 customParserNameCount,
+    //                                 0,
+    //                                 1024 * 3,
+    //                                 customParserCallback,
+    //                                 "BluetoothDebug",
+    //                                 parser_prinf_callback,
+    //                                 parser_prinf_callback);
+    // if (!custom_parser)
+    //     CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     // Task Create
     while (true) {
-        i2c_slave_receive_int(&i2c_handle_t, 3000);
-        // 检查是否有新的数据到来
-        if (i2c_getcount_rxbuffer() > 0) {
-            uint8_t data[256];
-            size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
-            for (int i = 0; i < len; i++) {
-                sempParseNextByte(custom_parser, data[i]);
-            }
+        digitalToggle(PA0);
+        if (Wire.isDeviceOnline(0x0B)) {
+            CORE_DEBUG_PRINTF("found 0x0b\n");
         }
-        delay_ms(10);
+        //        i2c_slave_receive_int(&i2c_handle_t, 3000);
+        //        // 检查是否有新的数据到来
+        //        if (i2c_getcount_rxbuffer() > 0) {
+        //            uint8_t data[256];
+        //            size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
+        //            for (int i = 0; i < len; i++) {
+        //                sempParseNextByte(custom_parser, data[i]);
+        //            }
+        //        }
+        delay_ms(1000);
     }
 }

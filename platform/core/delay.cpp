@@ -19,8 +19,7 @@ static volatile uint32_t systick_ticks = 0;
  * @return none
  */
 void delay_init() {
-	SysTick_Config(SYSTICK_TICK_LOAD);
-	NVIC_SetPriority(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+	SysTick_Init(SYSTICK_TICK_FREQ);
 }
 /*
  * @brief SysTick Handler

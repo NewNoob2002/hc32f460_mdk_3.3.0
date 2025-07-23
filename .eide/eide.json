@@ -262,6 +262,9 @@
                 "files": [
                   {
                     "path": "Arduino/drivers/i2c/HardwareI2cSlave.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/i2c/Wire.cpp"
                   }
                 ],
                 "folders": []

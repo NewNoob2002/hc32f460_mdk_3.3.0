@@ -1,15 +1,16 @@
 #pragma once
 
 #include <hc32_ll.h>
-#include <gpio.h>
+#include <core_types.h>
+#include <lwrb/lwrb.h>
 
 #ifndef WIRE_BUFF_SIZE
 #define WIRE_BUFF_SIZE 128
 #endif
 
 /* I2C address mode */
-#define I2C_ADDR_MD_7BIT                (0U)
-#define I2C_ADDR_MD_10BIT               (1U)
+#define I2C_ADDR_MD_7BIT                (1U)
+#define I2C_ADDR_MD_10BIT               (0U)
 
 #define I2C_ADDR_MD                     (I2C_ADDR_MD_7BIT)
 /**
@@ -41,9 +42,9 @@ struct i2c_peripheral_config_t
 
 class TwoWire{
 public:
-	TwoWire(struct i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t sda_pin);
+	TwoWire(i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t sda_pin);
 
-	void begin();
+	void begin(uint32_t clockFreq = 100 * 1000);
 
 	void end();
 	void setClock(uint32_t clockFreq);
@@ -53,18 +54,24 @@ public:
 
 	size_t write(uint8_t data);
 	size_t write(const uint8_t * data, size_t quantity);
+    size_t requestFrom(uint8_t address, uint8_t quantity);
 
-
+    bool isDeviceOnline(uint8_t address);
 private:
-    struct i2c_peripheral_config_t *_config;
+    i2c_peripheral_config_t *_config;
+    bool isInitliased;
 
     gpio_pin_t _scl_pin;
     gpio_pin_t _sda_pin;
 
     uint32_t _clock_frequency;
+#ifdef USE_RINGBUFFER
+    uint8_t *rxbuff;
+    uint8_t *txbuff;
 
-    uint8_t _max_trytimes;
+    lwrb_t rx_rb_t;
+    lwrb_t tx_rb_t;
+#endif
 };
 
 extern TwoWire Wire;
-extern i2c_peripheral_config_t I2C1_config;

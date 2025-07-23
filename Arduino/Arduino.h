@@ -62,6 +62,7 @@ extern "C"{
 #include "WMath.h"
 #include "HardwareSerial.h"
 #include "drivers/spi/SPI.h"
+#include "drivers/i2c/Wire.h"
 #include "libaries/IWatchdog/IWatchdog.h"
 #include "libaries/TrueRandom/TrueRandom.h"
 #include "libaries/Timer0/src/Timer0.h"
