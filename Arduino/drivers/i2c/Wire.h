@@ -2,7 +2,10 @@
 
 #include <hc32_ll.h>
 #include <core_types.h>
+
+#ifdef _WIRE_USE_RINGBUFFER
 #include <lwrb/lwrb.h>
+#endif
 
 #ifndef WIRE_BUFF_SIZE
 #define WIRE_BUFF_SIZE 128
@@ -65,7 +68,7 @@ private:
     gpio_pin_t _sda_pin;
 
     uint32_t _clock_frequency;
-#ifdef USE_RINGBUFFER
+#ifdef _WIRE_USE_RINGBUFFER
     uint8_t *rxbuff;
     uint8_t *txbuff;
 

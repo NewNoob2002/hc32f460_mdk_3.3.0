@@ -18,7 +18,7 @@ TwoWire::TwoWire(i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t
     this->_sda_pin = sda_pin;
 
     this->isInitliased = false;
-#ifdef USE_RINGBUFFER
+#ifdef _WIRE_USE_RINGBUFFER
     this->rxbuff = (uint8_t *)lwmem_malloc(WIRE_BUFF_SIZE);
     this->txbuff = (uint8_t *)lwmem_malloc(WIRE_BUFF_SIZE);
 
