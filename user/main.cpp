@@ -52,19 +52,26 @@ static void breath_task()
     }
 }
 
+uint8_t i2c_TxBuffer[512];
+
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
     // 处理自定义解析器的回调
-    SEMP_CUSTOM_HEADER *messageHeader  = (SEMP_CUSTOM_HEADER *)parse->buffer;
+    SEMP_CUSTOM_HEADER *messageHeader = (SEMP_CUSTOM_HEADER *)parse->buffer;
     uint16_t messageId                = messageHeader->messageId;
     uint8_t messageType               = messageHeader->messageType;
 
-    CORE_DEBUG_PRINTF("Custom Parser Callback: Message ID: %u, Message Type: %u\n", messageId, messageType);
+    for(int i = 0; i < parse->length; i++)
+    {
+        CORE_DEBUG_PRINTF("%02x ", parse->buffer[i]);
+    }
+    CORE_DEBUG_PRINTF("\n");
     switch (messageId) {
         case 1: {
             uint8_t TXbuffer[] = {0xaa, 0x44, 0x18, 0x14, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x56, 0x30, 0x2e, 0x31, 0x00, 0x00, 0x00, 0x00, 0x56, 0x31, 0x2e, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
                                   0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x0d, 0x07, 0xe2};
-            i2c_slave_transmit_int(&i2c_handle_t, TXbuffer, sizeof(TXbuffer), 3000);
+            memcpy(i2c_TxBuffer, TXbuffer, sizeof(TXbuffer));
+            i2c_slave_transmit_int(&i2c_handle_t, i2c_TxBuffer, sizeof(TXbuffer), 3000);
             break;
         }
         case 13: {
@@ -81,18 +88,6 @@ void parser_prinf_callback(const char *format, ...)
     vprintf(format, args);
     va_end(args);
 };
-static void i2cSlave_task(void *e)
-{
-    while (true) {
-        i2c_slave_receive_int(&i2c_handle_t, 3000);
-        // 检查是否有新的数据到来
-        if (i2c_getcount_rxbuffer() > 0) {
-            uint8_t data[256];
-            size_t len = i2c_read_rxbuffer(data, sizeof(data));
-            printf("Received %zu bytes: ", len);
-        }
-    }
-}
 
 int32_t main(void)
 {
@@ -103,8 +98,9 @@ int32_t main(void)
     heap_init();
     Serial.begin(115200);
     delay_init();
-    pinMode(PA1, PWM);
+    pinMode(PA0, OUTPUT);
     i2cSlave_init();
+    memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
     custom_parser = sempBeginParser(customParserTable,
                                     customParserCount,
                                     customParserNames,
@@ -113,12 +109,12 @@ int32_t main(void)
                                     1024 * 3,
                                     customParserCallback,
                                     "BluetoothDebug",
+                                    parser_prinf_callback,
                                     parser_prinf_callback);
     if (!custom_parser)
         CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     // Task Create
     while (true) {
-        breath_task();
         i2c_slave_receive_int(&i2c_handle_t, 3000);
         // 检查是否有新的数据到来
         if (i2c_getcount_rxbuffer() > 0) {
