@@ -68,14 +68,33 @@ i2c_status_type i2c_wait_flag(i2c_handle_type *hi2c, uint32_t flag, uint32_t tim
     return I2C_OK;
 }
 
-i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint16_t size, uint32_t timeout)
+i2c_status_type i2c_wait_end(i2c_handle_type* hi2c, uint32_t timeout)
+{
+  while(hi2c->status != I2C_END)
+  {
+    /* check timeout */
+    if((timeout--) == 0)
+    {
+      return I2C_ERR_TIMEOUT;
+    }
+  }
+
+  if(hi2c->error_code != I2C_OK)
+  {
+    return hi2c->error_code;
+  }
+  else
+  {
+    return I2C_OK;
+  }
+}
+
+i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint32_t timeout)
 {
     /* initialization parameters */
     hi2c->mode   = I2C_INT_SLA_RX;
     hi2c->status = I2C_START;
 
-    hi2c->pcount = size;
-
     hi2c->timeout    = timeout;
     hi2c->error_code = I2C_OK;
 
@@ -83,20 +102,20 @@ i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint16_t size, uint
     if (i2c_wait_flag(hi2c, I2C_FLAG_BUSY, timeout) != I2C_OK) {
         return I2C_ERR_STEP_1;
     }
-
+    I2C_Cmd(I2C_UNIT, ENABLE);
     /* Config slave address match and receive full interrupt function*/
     I2C_IntCmd(I2C_UNIT, I2C_INT_MATCH_ADDR0 | I2C_INT_RX_FULL, ENABLE);
-
     return I2C_OK;
 }
 
-i2c_status_type i2c_master_transmit_int(i2c_handle_type *hi2c, uint16_t address, uint8_t *pdata, uint16_t size, uint32_t timeout)
+i2c_status_type i2c_slave_transmit_int(i2c_handle_type *hi2c, uint8_t* buff, uint32_t size, uint32_t timeout)
 {
     /* initialization parameters */
     hi2c->mode   = I2C_INT_SLA_TX;
     hi2c->status = I2C_START;
 
-    hi2c->pcount = size;
+    hi2c->tx_buffer = buff;
+    hi2c->tx_size   = size;
 
     hi2c->timeout    = timeout;
     hi2c->error_code = I2C_OK;
@@ -105,9 +124,9 @@ i2c_status_type i2c_master_transmit_int(i2c_handle_type *hi2c, uint16_t address,
     if (i2c_wait_flag(hi2c, I2C_FLAG_BUSY, timeout) != I2C_OK) {
         return I2C_ERR_STEP_1;
     }
+    I2C_Cmd(I2C_UNIT, ENABLE);
     /* Config slave address match interrupt function*/
     I2C_IntCmd(I2C_UNIT, I2C_INT_MATCH_ADDR0, ENABLE);
-
     return I2C_OK;
 }
 
@@ -116,6 +135,7 @@ void i2c_slave_rx_isr_int(i2c_handle_type *hi2c)
     if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_MATCH_ADDR0)) {
         I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR | I2C_CLR_NACKFCLR | I2C_CLR_STOPFCLR);
         if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+            hi2c->status = I2C_BUSY;
             /* Enable stop and NACK interrupt */
             I2C_IntCmd(I2C_UNIT, I2C_INT_STOP | I2C_INT_NACK, ENABLE);
         }
@@ -123,8 +143,8 @@ void i2c_slave_rx_isr_int(i2c_handle_type *hi2c)
         /* Clear STOPF flag */
         I2C_ClearStatus(I2C_UNIT, I2C_CLR_NACKFCLR);
         /* Config rx buffer full interrupt function disable */
-        if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) { 
-            I2C_IntCmd(I2C_UNIT, I2C_INT_RX_FULL, DISABLE); 
+        if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+            I2C_IntCmd(I2C_UNIT, I2C_INT_RX_FULL, DISABLE);
         }
     } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_STOP)) {
         /* If stop interrupt occurred */
@@ -142,11 +162,12 @@ void i2c_slave_tx_isr_int(i2c_handle_type *hi2c)
     if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_MATCH_ADDR0)) {
         I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR | I2C_CLR_NACKFCLR | I2C_CLR_STOPFCLR);
         if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+            hi2c->status = I2C_BUSY;
             /* Enable tx end interrupt function*/
-            I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT| I2C_INT_STOP | I2C_INT_NACK, ENABLE);
-            uint8_t ch = 0;
-            if (lwrb_read(&tx_rb_t, &ch, 1) != 0) {
-                I2C_WriteData(I2C_UNIT, ch);
+            I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT | I2C_INT_STOP | I2C_INT_NACK, ENABLE);
+            if(hi2c->tx_size){
+                I2C_WriteData(I2C_UNIT, *hi2c->tx_buffer++);
+                hi2c->tx_size--;
             }
         }
     } else if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF)) {
@@ -163,9 +184,9 @@ void i2c_slave_tx_isr_int(i2c_handle_type *hi2c)
         I2C_ClearStatus(I2C_UNIT, I2C_CLR_STOPFCLR);
         /* Disable all interrupt enable flag except SLADDR0IE*/
         I2C_IntCmd(I2C_UNIT, I2C_INT_TX_CPLT | I2C_INT_STOP | I2C_INT_NACK, DISABLE);
-        hi2c->status = I2C_END; // Communication finished
         /* If transfer end, disable I2C */
         I2C_Cmd(I2C_UNIT, DISABLE);
+        hi2c->status = I2C_END; // Communication finished
     }
 }
 
@@ -173,7 +194,6 @@ void i2c_evt_irq_handler(i2c_handle_type *hi2c)
 {
     switch (hi2c->mode) {
         case I2C_INT_SLA_TX:
-						printf("rx_int\n");
             i2c_slave_tx_isr_int(hi2c);
             break;
         case I2C_INT_SLA_RX:
@@ -193,6 +213,16 @@ static void I2C_communication_error_event_callback(void)
     i2c_evt_irq_handler(&i2c_handle_t);
 }
 
+void i2c_slave_tx_end_callback(i2c_handle_type *hi2c)
+{
+    if ((SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TX_CPLT)) &&
+        (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF))) {
+            if(hi2c->tx_size){
+                I2C_WriteData(I2C_UNIT, *hi2c->tx_buffer++);
+                hi2c->tx_size--;
+            }
+    }
+}
 /**
  * @brief   I2C TEI(transfer end) interrupt callback function
  * @param   None
@@ -200,11 +230,7 @@ static void I2C_communication_error_event_callback(void)
  */
 static void I2C_transfer_end_callback(void)
 {
-    if ((SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TX_CPLT)) &&
-        (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_NACKF))) {
-        uint8_t ch = 0;
-        if (lwrb_read(&tx_rb_t, &ch, 1) != 0) { I2C_WriteData(I2C_UNIT, ch); }
-    }
+    i2c_slave_tx_end_callback(&i2c_handle_t);
 }
 
 /**
@@ -244,19 +270,18 @@ void i2c_buffer_init()
     CORE_ASSERT(txbuff != nullptr, "Failed to allocate memory for transmit buffer");
     /* Init buffer */
     lwrb_init(&rx_rb_t, rxbuff, I2C_SLAVE_RX_BUFFER_SIZE);
-    lwrb_init(&tx_rb_t, txbuff, I2C_SLAVE_TX_BUFFER_SIZE);
     lwrb_reset(&rx_rb_t);
+    lwrb_init(&tx_rb_t, txbuff, I2C_SLAVE_TX_BUFFER_SIZE);
     lwrb_reset(&tx_rb_t);
 }
 
-size_t I2C_getcount_rxbuffer()
+size_t i2c_getcount_rxbuffer()
 {
     return lwrb_get_full(&rx_rb_t);
 }
-size_t I2C_read_rxbuffer(uint8_t *data, uint32_t size)
+size_t i2c_read_rxbuffer(uint8_t *data, uint32_t size)
 {
-    if (data == nullptr || size == 0)
-    {
+    if (data == nullptr || size == 0) {
         return 0; // Invalid parameters
     }
 
@@ -264,16 +289,6 @@ size_t I2C_read_rxbuffer(uint8_t *data, uint32_t size)
     return read_len;
 }
 
-size_t I2C_write_txbuffer(const uint8_t *data, uint32_t size)
-{
-    if (data == nullptr || size == 0)
-    {
-        return 0; // Invalid parameters
-    }
-    
-    size_t write_len = lwrb_write(&tx_rb_t, data, size);
-    return write_len;
-}
 /**
  * @brief   Initialize the I2C peripheral for slave
  * @param   None
@@ -288,7 +303,6 @@ int32_t i2cSlaveConfig_Initialize()
     stc_irq_signin_config_t stcIrqRegCfg;
     float32_t fErr;
 
-    FCG_Fcg1PeriphClockCmd(I2C_FCG_USE, ENABLE);
     i2c_buffer_init();
     (void)I2C_DeInit(I2C_UNIT);
 
@@ -302,7 +316,7 @@ int32_t i2cSlaveConfig_Initialize()
         /* Set slave address*/
         I2C_SlaveAddrConfig(I2C_UNIT, I2C_ADDR0, I2C_ADDR_7BIT, I2C_SLAVE_ADDRESS);
         /* Enable I2C peripheral */
-        i2c_irq_register(event_error_irq, "i2c1_event_error_irq",DDL_IRQ_PRIO_05);
+        i2c_irq_register(event_error_irq, "i2c1_event_error_irq", DDL_IRQ_PRIO_05);
 
         i2c_irq_register(transfer_end_irq, "i2c1_transfer_end_irq", DDL_IRQ_PRIO_08);
 
@@ -312,6 +326,8 @@ int32_t i2cSlaveConfig_Initialize()
         I2C_DEBUG_PRINTF("I2C slave initialized with address 0x%02X\n", I2C_SLAVE_ADDRESS);
 
         return LL_OK;
+    } else {
+        I2C_DEBUG_PRINTF("error :%f and return %d\n", fErr, i32Ret);
     }
 
     I2C_DEBUG_PRINTF("Failed to initialize I2C slave, error code: %d\n", i32Ret);
@@ -331,9 +347,9 @@ void i2cSlaveConfig_Deinitialize()
 
     /* Free allocated buffers */
     lwmem_free(rxbuff);
+    lwrb_free(&rx_rb_t);
     lwmem_free(txbuff);
-    lwrb_free(&rx_rb_t);
-    lwrb_free(&rx_rb_t);
+    lwrb_free(&tx_rb_t);
 }
 
 int32_t i2cSlave_init()
@@ -342,7 +358,7 @@ int32_t i2cSlave_init()
     FCG_Fcg1PeriphClockCmd(I2C_FCG_USE, ENABLE);
     i2c_buffer_init();
     /* Initialize I2C port*/
-    GPIO_SetFunction(I2C_SLAVE_SCL_PIN, I2C_SLAVE_SDA_PIN);
+    GPIO_SetFunction(I2C_SLAVE_SCL_PIN, I2C_GPIO_SCL_FUNC);
     GPIO_SetFunction(I2C_SLAVE_SDA_PIN, I2C_GPIO_SDA_FUNC);
     /* Initialize I2C peripheral */
     int32_t i32Ret = i2cSlaveConfig_Initialize();

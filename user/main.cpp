@@ -5,7 +5,6 @@
 #include <SparkFun_Extensible_Message_Parser.h>
 
 #include "HardwareI2cSlave.h"
-#include "display.h"
 /*******************************************************************************
  * Macro definitions
  ******************************************************************************/
@@ -25,47 +24,55 @@ const int customParserNameCount = sizeof(customParserNames) / sizeof(customParse
 SEMP_PARSE_STATE *custom_parser = nullptr;
 
 const uint8_t messageHeaderLength = sizeof(SEMP_CUSTOM_HEADER);
+
+static bool i2c_receive_flag = true;
 // 呼吸灯参数
 static float breath_angle                    = 0.0;  // 当前角度
 static const float breath_speed              = 0.05; // 呼吸速度，可调节
 static const uint32_t breath_update_interval = 10;   // 更新间隔(ms)，值越小越丝滑
 
-TaskHandle_t test_task_handle    = nullptr;
-TaskHandle_t WatchDog_TaskHandle = nullptr;
 // 呼吸灯任务
 // 该任务会周期性更新呼吸灯的PWM值
-static void test_task(void *e)
+static void breath_task()
 {
-    while (1) {
-        // 使用正弦函数生成平滑的呼吸效果
-        // sin值范围[-1, 1]，转换为[0, 1023]
-        float sin_val = sin(breath_angle);
-        // 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
-        uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
+    // 使用正弦函数生成平滑的呼吸效果
+    // sin值范围[-1, 1]，转换为[0, 1023]
+    float sin_val = sin(breath_angle);
+    // 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
+    uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
 
-        // 输出PWM
-        // analogWrite(PA0, pwm_value);
-        analogWrite(PA1, pwm_value);
-        // 更新角度
-        breath_angle += breath_speed;
-
-        // 防止角度过大，重置到0-2π范围
-        if (breath_angle >= 2 * PI) {
-            breath_angle = 0.0;
-        }
-        vTaskDelay(10); // 延时10ms，避免任务过于频繁
+    // 输出PWM
+    // analogWrite(PA0, pwm_value);
+    analogWrite(PA1, pwm_value);
+    // 更新角度
+    breath_angle += breath_speed;
+    // 防止角度过大，重置到0-2π范围
+    if (breath_angle >= 2 * PI) {
+        breath_angle = 0.0;
     }
 }
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
     // 处理自定义解析器的回调
-    SEMP_CUSTOM_HEADER *messageHeader = nullptr;
-    messageHeader                     = (SEMP_CUSTOM_HEADER *)parse->buffer;
+    SEMP_CUSTOM_HEADER *messageHeader  = (SEMP_CUSTOM_HEADER *)parse->buffer;
     uint16_t messageId                = messageHeader->messageId;
     uint8_t messageType               = messageHeader->messageType;
 
-    printf("Custom Parser Callback: Message ID: %u, Message Type: %u\n", messageId, messageType);
+    CORE_DEBUG_PRINTF("Custom Parser Callback: Message ID: %u, Message Type: %u\n", messageId, messageType);
+    switch (messageId) {
+        case 1: {
+            uint8_t TXbuffer[] = {0xaa, 0x44, 0x18, 0x14, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x56, 0x30, 0x2e, 0x31, 0x00, 0x00, 0x00, 0x00, 0x56, 0x31, 0x2e, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
+                                  0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x0d, 0x07, 0xe2};
+            i2c_slave_transmit_int(&i2c_handle_t, TXbuffer, sizeof(TXbuffer), 3000);
+            break;
+        }
+        case 13: {
+            uint8_t TXbuffer[] = {0xAA, 0x44, 0x18};
+            i2c_slave_transmit_int(&i2c_handle_t, TXbuffer, sizeof(TXbuffer), 3000);
+            break;
+        }
+    }
 }
 void parser_prinf_callback(const char *format, ...)
 {
@@ -76,38 +83,16 @@ void parser_prinf_callback(const char *format, ...)
 };
 static void i2cSlave_task(void *e)
 {
-    custom_parser = sempBeginParser(customParserTable,
-                                    customParserCount,
-                                    customParserNames,
-                                    customParserNameCount,
-                                    0,
-                                    1024 * 3,
-                                    customParserCallback,
-                                    "BluetoothDebug",
-                                    parser_prinf_callback);
-    if (!custom_parser)
-        printf("Failed to initialize the Bt parser");
     while (true) {
-				i2c_slave_receive_int(&i2c_handle_t, 256, 3000);
+        i2c_slave_receive_int(&i2c_handle_t, 3000);
         // 检查是否有新的数据到来
-        if (I2C_getcount_rxbuffer() > 0) {
+        if (i2c_getcount_rxbuffer() > 0) {
             uint8_t data[256];
-            size_t len = I2C_read_rxbuffer(data, sizeof(data));
+            size_t len = i2c_read_rxbuffer(data, sizeof(data));
             printf("Received %zu bytes: ", len);
         }
-        vTaskDelay(10);
     }
 }
-
-static void WatchDog_Task(void *e)
-{
-    while (true) {
-        LCD_Clear(RED);
-        vTaskDelay(1000);
-    }
-}
-
-extern void i2c_buffer_init();
 
 int32_t main(void)
 {
@@ -118,15 +103,31 @@ int32_t main(void)
     heap_init();
     Serial.begin(115200);
     delay_init();
-    LCD_Init();
-    LCD_Clear(RED);
     pinMode(PA1, PWM);
-    // i2cSlave_init();
-    //Task Create
-    xTaskCreate(test_task, "Breath LED Task", 1024, nullptr, 1, &test_task_handle);
-    xTaskCreate(WatchDog_Task, "WatchDog Task", 1024 * 1, nullptr, 2, &WatchDog_TaskHandle);
-    xTaskCreate(i2cSlave_task, "I2C Slave Task", 1024 * 3, nullptr, 2, nullptr);
-    // Start the FreeRTOS scheduler
-    vTaskStartScheduler();
-    while (true) {}
+    i2cSlave_init();
+    custom_parser = sempBeginParser(customParserTable,
+                                    customParserCount,
+                                    customParserNames,
+                                    customParserNameCount,
+                                    0,
+                                    1024 * 3,
+                                    customParserCallback,
+                                    "BluetoothDebug",
+                                    parser_prinf_callback);
+    if (!custom_parser)
+        CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
+    // Task Create
+    while (true) {
+        breath_task();
+        i2c_slave_receive_int(&i2c_handle_t, 3000);
+        // 检查是否有新的数据到来
+        if (i2c_getcount_rxbuffer() > 0) {
+            uint8_t data[256];
+            size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
+            for (int i = 0; i < len; i++) {
+                sempParseNextByte(custom_parser, data[i]);
+            }
+        }
+        delay_ms(10);
+    }
 }

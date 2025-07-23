@@ -137,9 +137,6 @@
             "files": [
               {
                 "path": "platform/newlibc/newlib.c"
-              },
-              {
-                "path": "platform/newlibc/no_semihost.s"
               }
             ],
             "folders": []
@@ -447,7 +444,9 @@
     "debug": {
       "excludeList": [
         "<virtual_root>/platform/newlibc/newlib.s",
-        "<virtual_root>/libraries/cm_backtrace"
+        "<virtual_root>/libraries/cm_backtrace",
+        "<virtual_root>/FreeRTOS",
+        "<virtual_root>/Arduino/libraries/slave_i2c/soft_slave_i2c.cpp"
       ],
       "toolchain": "AC6",
       "compileConfig": {
@@ -564,16 +563,13 @@
         },
         "options": "null"
       },
-      "uploader": "JLink",
+      "uploader": "pyOCD",
       "uploadConfig": {
         "bin": "",
-        "baseAddr": "",
-        "cpuInfo": {
-          "vendor": "XHSC",
-          "cpuName": "HC32F460xE"
-        },
-        "proType": 1,
-        "speed": 8000,
+        "targetName": "hc32f460xe",
+        "baseAddr": "0x08000000",
+        "speed": "8M",
+        "config": ".eide/debug.pyocd.yaml",
         "otherCmds": ""
       },
       "uploadConfigMap": {
@@ -629,8 +625,7 @@
           "USE_DDL_DRIVER",
           "__DEBUG",
           "__CORE_DEBUG",
-          "__FPU_PRESENT=1",
-          "USE_FREERTOS"
+          "__FPU_PRESENT=1"
         ]
       },
       "builderOptions": {

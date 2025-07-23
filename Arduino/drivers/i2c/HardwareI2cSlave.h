@@ -8,7 +8,7 @@
 #define I2C_FCG_USE              (FCG1_PERIPH_I2C1)
 
 #define I2C_SLAVE_SCL_PIN        (PA3)
-#define I2C_SLAVE_SDA_PIN        (PA2)
+#define I2C_SLAVE_SDA_PIN        (PA4)
 #define I2C_GPIO_SCL_FUNC        (GPIO_FUNC_49)
 #define I2C_GPIO_SDA_FUNC        (GPIO_FUNC_48)
 
@@ -21,18 +21,8 @@
 
 typedef enum {
     I2C_OK = 0,        /*!< no error */
-    I2C_ERR_STEP_1,    /*!< step 1 error */
-    I2C_ERR_STEP_2,    /*!< step 2 error */
-    I2C_ERR_STEP_3,    /*!< step 3 error */
-    I2C_ERR_STEP_4,    /*!< step 4 error */
-    I2C_ERR_STEP_5,    /*!< step 5 error */
-    I2C_ERR_STEP_6,    /*!< step 6 error */
-    I2C_ERR_STEP_7,    /*!< step 7 error */
-    I2C_ERR_STEP_8,    /*!< step 8 error */
-    I2C_ERR_STEP_9,    /*!< step 9 error */
-    I2C_ERR_STEP_10,   /*!< step 10 error */
-    I2C_ERR_STEP_11,   /*!< step 11 error */
-    I2C_ERR_STEP_12,   /*!< step 12 error */
+    I2C_ERR_STEP_1,
+    I2C_ERR_LINE_BUSY,
     I2C_ERR_START,     /*!< start error */
     I2C_ERR_ADDR10,    /*!< addr10 error */
     I2C_ERR_ADDR,      /*!< addr error */
@@ -51,12 +41,14 @@ typedef enum
 typedef enum
 {
     I2C_START = 0, /*!< I2C start condition */
+    I2C_BUSY,
     I2C_END,   /*!< I2C end condition */
 } i2c_communicate_status_type;
 
 typedef struct
 {
-    __IO uint16_t pcount;            /*!< i2c transfer counter            */
+    uint8_t* tx_buffer;
+    __IO uint32_t tx_size;
     __IO uint32_t mode;              /*!< i2c communication mode          */
     __IO uint32_t timeout;           /*!< i2c wait time                   */
     __IO uint32_t status;            /*!< i2c communication status        */
@@ -82,11 +74,12 @@ struct i2c_interrupt_config_t {
 };
 
 int32_t i2cSlave_init();
-i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint16_t size, uint32_t timeout);
-i2c_status_type i2c_master_transmit_int(i2c_handle_type *hi2c, uint16_t address, uint8_t *pdata, uint16_t size, uint32_t timeout);
-size_t I2C_getcount_rxbuffer();
-size_t I2C_read_rxbuffer(uint8_t *data, uint32_t size);
-size_t I2C_write_txbuffer(const uint8_t *data, uint32_t size);
+i2c_status_type i2c_wait_end(i2c_handle_type* hi2c, uint32_t timeout);
+i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint32_t timeout);
+i2c_status_type i2c_slave_transmit_int(i2c_handle_type *hi2c, uint8_t* buff, uint32_t size, uint32_t timeout);
+size_t i2c_getcount_rxbuffer();
+size_t i2c_read_rxbuffer(uint8_t *data, uint32_t size);
+// size_t i2c_write_txbuffer(const uint8_t *data, uint32_t size);
 
 extern i2c_handle_type i2c_handle_t;
 #endif

@@ -3,7 +3,6 @@
 #include "drivers/gpio/gpio.h"
 #include "drivers/adc/adc.h"
 #include "drivers/timera/timera_pwm.h"
-#include "wiring_constants.h"
 #include "core_debug.h"
 #include <string.h>
 

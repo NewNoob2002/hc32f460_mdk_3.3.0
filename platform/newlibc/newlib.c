@@ -4,8 +4,6 @@
  */
 #include <stdint.h>
 #include <stdio.h>
-#include <errno.h>
-#include "CommonMacro.h"
 
 // 定义必要的常量（如果未定义）
 #ifndef STDOUT_FILENO

@@ -36,7 +36,7 @@ uint32_t millis()
 	return SYSTICK_TICK_MS;
 }
 
-uint32_t micros(void)
+uint64_t micros()
 {
 	return (SYSTICK_TICK_MS * 1000 + (SYSTICK_TICK_LOAD - SysTick->VAL) / CYCLES_PER_MICROSECOND);
 }
