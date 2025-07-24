@@ -4,6 +4,13 @@
 #include <lwmem/lwmem.h>
 #include <Wire.h>
 
+i2c_peripheral_config_t I2C1_config = {
+    .register_base    = CM_I2C1,
+    .clock_id         = PWC_FCG1_I2C1,
+    .scl_pin_function = Func_I2c1_Scl,
+    .sda_pin_function = Func_I2c1_Sda,
+};
+
 i2c_peripheral_config_t I2C2_config = {
     .register_base    = CM_I2C2,
     .clock_id         = PWC_FCG1_I2C2,
@@ -12,6 +19,7 @@ i2c_peripheral_config_t I2C2_config = {
 };
 
 TwoWire Wire(&I2C2_config, PA9, PA8);
+TwoWire Wire1(&I2C1_config, PA3, PA4);
 
 #define REG_TO_I2Cx(reg) ((reg == CM_I2C1) ? "I2C1" : (reg == CM_I2C2) ? "I2C2" \
                                                   : (reg == CM_I2C3)   ? "I2C3" \
@@ -24,8 +32,6 @@ TwoWire::TwoWire(i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t
     this->_config  = config;
     this->_scl_pin = scl_pin;
     this->_sda_pin = sda_pin;
-
-    this->isInitliased = false;
 #ifdef _WIRE_USE_RINGBUFFER
     this->rxbuff = (uint8_t *)lwmem_malloc(WIRE_BUFF_SIZE);
     this->txbuff = (uint8_t *)lwmem_malloc(WIRE_BUFF_SIZE);
@@ -38,6 +44,11 @@ TwoWire::TwoWire(i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t
 void TwoWire::begin(uint32_t clockFreq)
 {
     this->_clock_frequency = clockFreq;
+
+    if(this->enableSlave) {
+        CORE_ASSERT(this->slave_address != 0 && this->slave_address < 0x7F, "Slave address must be set and less than 0x7F");
+    }
+
     GPIO_SetFunction(this->_scl_pin, this->_config->scl_pin_function);
     GPIO_SetFunction(this->_sda_pin, this->_config->sda_pin_function);
 
@@ -48,20 +59,33 @@ void TwoWire::begin(uint32_t clockFreq)
     float32_t fErr;
 
     (void)I2C_DeInit(this->_config->register_base);
-
     (void)I2C_StructInit(&stcI2cInit);
-    stcI2cInit.u32ClockDiv = I2C_CLK_DIV8;
-    stcI2cInit.u32Baudrate = this->_clock_frequency;
-    stcI2cInit.u32SclTime  = 3UL;
-    i32Ret                 = I2C_Init(this->_config->register_base, &stcI2cInit, &fErr);
+    if(this->_clock_frequency <= 100 * 1000) {
+        stcI2cInit.u32ClockDiv = I2C_CLK_DIV8;
+        stcI2cInit.u32Baudrate = this->_clock_frequency;
+        stcI2cInit.u32SclTime  = 3UL;
+    }
+    else if(this->_clock_frequency == 400 * 1000) {
+        stcI2cInit.u32ClockDiv = I2C_CLK_DIV2;
+        stcI2cInit.u32Baudrate = this->_clock_frequency;
+        stcI2cInit.u32SclTime  = 5UL;
+    }
+    i32Ret = I2C_Init(this->_config->register_base, &stcI2cInit, &fErr);
 
     if (i32Ret != LL_OK) {
         CORE_DEBUG_PRINTF("Failed to initialize I2C, error:%f, ret = %d", fErr, i32Ret);
         return;
     }
+
+    if(this->enableSlave) {
+        I2C_SlaveAddrConfig(this->_config->register_base, I2C_ADDR0, I2C_ADDR_7BIT, this->slave_address);
+    }
+    else{ 
+        I2C_BusWaitCmd(this->_config->register_base, ENABLE);
+    }
+   
     this->isInitliased = true;
-    CORE_DEBUG_PRINTF("I2c init success\n");
-    I2C_BusWaitCmd(this->_config->register_base, ENABLE);
+    CORE_DEBUG_PRINTF("I2c init success, in mode: %s\n", this->enableSlave ? "slave" : "master\n");
 }
 
 void TwoWire::end()
@@ -69,13 +93,12 @@ void TwoWire::end()
     I2C_DeInit(this->_config->register_base);
 }
 
-void TwoWire::setClock(uint32_t clockFreq)
-{
-    this->_clock_frequency = clockFreq;
-}
-
 bool TwoWire::beginTransmission(uint8_t address)
 {
+    if(this->enableSlave) {
+        WIRE_DEBUG_PRINTF("Slave mode not supported BeginTransmission\n");
+        return false;
+    }
     uint32_t i32Ret = LL_ERR;
     bool result     = false;
 
@@ -93,6 +116,10 @@ bool TwoWire::beginTransmission(uint8_t address)
 
 uint8_t TwoWire::endTransmission(bool stopBit)
 {
+    if(this->enableSlave) {
+        WIRE_DEBUG_PRINTF("Slave mode not supported endTransmission\n");
+        return 0;
+    }
     if (stopBit) {
         // Stop by software
         I2C_Stop(this->_config->register_base, WIRE_TIMEOUT);
@@ -124,8 +151,11 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
 }
 
 size_t TwoWire::requestFrom(uint8_t address, uint8_t register_address, uint8_t *buffer, uint8_t quantity, bool sendStop)
-
 {
+    if(this->enableSlave) {
+        WIRE_DEBUG_PRINTF("Slave mode not supported requestFrom\n");
+        return 0;
+    }
     int32_t ret = LL_ERR;
     if (write(register_address) == 0) {
         WIRE_DEBUG_PRINTF("I2c write register address failed\n");
@@ -155,6 +185,10 @@ size_t TwoWire::requestFrom(uint8_t address, uint8_t register_address, uint8_t *
 
 bool TwoWire::isDeviceOnline(uint8_t address)
 {
+    if(this->enableSlave) {
+        WIRE_DEBUG_PRINTF("Slave mode not supported Scan slave\n");
+        return false;
+    }
     if (beginTransmission(address)) {
         endTransmission();
     } else {
@@ -166,6 +200,10 @@ bool TwoWire::isDeviceOnline(uint8_t address)
 
 void TwoWire::scanDeivces(voidFuncPtrWithArg callback)
 {
+    if(this->enableSlave) {
+        WIRE_DEBUG_PRINTF("Slave mode not supported Scan slave\n");
+        return;
+    }
     for (uint8_t i = 0x01; i < 0x7F; i++) {
         if (isDeviceOnline(i)) {
             if (callback) {

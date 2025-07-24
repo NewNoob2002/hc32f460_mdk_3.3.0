@@ -49,7 +49,7 @@ static void breath_task()
     }
 }
 
-uint8_t i2c_RxBuffer[512];
+uint8_t i2c_RxBuffer[60];
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
@@ -108,20 +108,20 @@ int32_t main(void)
                                     parser_prinf_callback);
     if (!custom_parser)
         CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
+    uint8_t buffer[8] = {0x02, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x01, 0x02};
     // Task Create
     while (true) {
         static uint32_t tick = 0;
         if (millis() - tick >= 1000) {
             tick = millis();
             digitalToggle(PA0);
-            CORE_DEBUG_PRINTF("tick: %d\n", tick);
             Wire.scanDeivces(my_callback);
         }
-        if (i2c_slave_get_addrMatched()) {
-            if (LL_ERR != I2C_Slave_Receive(i2c_RxBuffer, sizeof(i2c_RxBuffer), 3000)) {
-                CORE_DEBUG_PRINTF("read success\n");
-            }
-        }
+        //        if (i2c_slave_get_addrMatched()) {
+        //            if (LL_ERR != I2C_Slave_Receive(i2c_RxBuffer, sizeof(i2c_RxBuffer), 3000)) {
+        //                CORE_DEBUG_PRINTF("read success\n");
+        //            }
+        //        }
         //        i2c_slave_receive_int(&i2c_handle_t, 3000);
         //        // 检查是否有新的数据到来
         //        if (i2c_getcount_rxbuffer() > 0) {

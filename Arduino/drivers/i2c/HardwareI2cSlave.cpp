@@ -5,6 +5,7 @@
 #include <lwrb/lwrb.h>
 
 #include "HardwareI2cSlave.h"
+#include "core_debug.h"
 
 #define ENABLE_I2C_DEBUG 1
 #if defined(ENABLE_I2C_DEBUG) && (ENABLE_I2C_DEBUG == 1)
@@ -303,6 +304,7 @@ int32_t I2C_Slave_Receive(uint8_t *au8Data, uint32_t u32Size, uint32_t u32Timeou
     }
 
     I2C_Cmd(I2C_UNIT, DISABLE);
+    CORE_DEBUG_PRINTF("I2C_Slave_Receive return %d\n", i32Ret);
     return i32Ret;
 }
 
