@@ -140,6 +140,18 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "config",
+            "files": [
+              {
+                "path": "config/mcu_config.h"
+              },
+              {
+                "path": "config/mcu_define.h"
+              }
+            ],
+            "folders": []
           }
         ]
       },

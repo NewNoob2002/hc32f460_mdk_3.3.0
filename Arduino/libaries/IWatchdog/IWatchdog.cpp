@@ -1,9 +1,7 @@
-#include "IWatchdog.h"
-#include "core_debug.h"
-#include "drivers/sysclock/sysclock.h"
+#include <Arduino.h>
 #include "drivers/irqn/irqn.h"
-#include "core_hooks.h"
 
+#include "IWatchdog.h"
 //
 // global WDT object
 //

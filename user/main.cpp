@@ -5,12 +5,6 @@
 #include <SparkFun_Extensible_Message_Parser.h>
 
 #include "HardwareI2cSlave.h"
-/*******************************************************************************
- * Macro definitions
- ******************************************************************************/
-#define EXAMPLE_PERIPH_WE (LL_PERIPH_GPIO | LL_PERIPH_EFM | LL_PERIPH_FCG | \
-                           LL_PERIPH_PWC_CLK_RMU | LL_PERIPH_SRAM)
-#define EXAMPLE_PERIPH_WP (LL_PERIPH_EFM | LL_PERIPH_FCG | LL_PERIPH_SRAM)
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble

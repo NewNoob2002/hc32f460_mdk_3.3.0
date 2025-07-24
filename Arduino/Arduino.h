@@ -22,33 +22,37 @@
 
 #include <math.h>
 
-#include "core_debug.h"
-#include "core_types.h"
-#include "CommonMacro.h"
+#include <mcu_config.h>
+#include <mcu_define.h>
+
+#include <core_debug.h>
+#include <core_types.h>
+#include <core_hooks.h>
+#include <CommonMacro.h>
 
 // some libraries and sketches depend on this AVR stuff,
 // assuming Arduino.h or WProgram.h automatically includes it...
 //
-#include "pgmspace.h"
-#include "interrupt.h"
-#include "io.h"
-#include "dtostrf.h"
+#include <pgmspace.h>
+#include <interrupt.h>
+#include <io.h>
+#include <dtostrf.h>
 
-#include "binary.h"
-#include "itoa.h"
+#include <binary.h>
+#include <itoa.h>
 
 #ifdef __cplusplus
 extern "C"{
 #endif // __cplusplus
 
-#include "wiring_constants.h"
+#include <wiring_constants.h>
 #include <yield.h>
 
   /* sketch */
 //void setup( void ) ;
 //void loop( void ) ;
 
-#include "WVariant.h"
+#include <WVariant.h>
 
 #ifdef __cplusplus
 } // extern "C"

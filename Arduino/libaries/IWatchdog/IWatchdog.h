@@ -6,8 +6,8 @@
 #error "IWatchdog library requires WDT DDL to be enabled"
 #endif
 
-#include "Arduino.h"
 #include <hc32_ll.h>
+#include <core_types.h>
 
 class IWatchdog
 {

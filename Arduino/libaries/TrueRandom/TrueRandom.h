@@ -10,7 +10,6 @@
 #error "TrueRandom library requires PWC DDL to be enabled"
 #endif
 
-#include "Arduino.h"
 #include <hc32_ll.h>
 
 #ifndef TRNG_TIMEOUT

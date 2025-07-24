@@ -1,6 +1,6 @@
-#include "TrueRandom.h"
-#include "core_debug.h"
+#include <Arduino.h>
 
+#include "TrueRandom.h"
 //
 // TrueRandom global instance
 //
