@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\Parser;..\..\libraries\lwmem\src\include;..\..\libraries\lwrb\src\include;..\..\Arduino\drivers\i2c</IncludePath>
+              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\cm_backtrace;..\..\libraries\Parser;..\..\libraries\lwmem\src\include;..\..\libraries\lwrb\src\include;..\..\Arduino\drivers\i2c</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,6 +398,21 @@
               <FileName>display.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\..\user\src\display.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>platform/config</GroupName>
+          <Files>
+            <File>
+              <FileName>mcu_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\config\mcu_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>mcu_define.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\config\mcu_define.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1013,6 +1028,26 @@
               <FileName>lwrb_ex.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\libraries\lwrb\src\lwrb\lwrb_ex.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Libaries/cm_backtarce</GroupName>
+          <Files>
+            <File>
+              <FileName>cm_backtrace.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\libraries\cm_backtrace\cm_backtrace.c</FilePath>
+            </File>
+            <File>
+              <FileName>cmb_cfg.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\libraries\cm_backtrace\cmb_cfg.h</FilePath>
+            </File>
+            <File>
+              <FileName>cmb_fault.S</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\libraries\cm_backtrace\fault_handler\keil\cmb_fault.S</FilePath>
             </File>
           </Files>
         </Group>

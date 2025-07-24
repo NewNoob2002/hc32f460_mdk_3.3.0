@@ -8,7 +8,7 @@
 #define I2C_FCG_USE              (FCG1_PERIPH_I2C1)
 
 #define I2C_SLAVE_SCL_PIN        (PA3)
-#define I2C_SLAVE_SDA_PIN        (PA4)
+#define I2C_SLAVE_SDA_PIN        (PA2)
 #define I2C_GPIO_SCL_FUNC        (GPIO_FUNC_49)
 #define I2C_GPIO_SDA_FUNC        (GPIO_FUNC_48)
 

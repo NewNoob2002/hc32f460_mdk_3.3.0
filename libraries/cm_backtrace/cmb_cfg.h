@@ -32,8 +32,9 @@
 #ifdef	CMB_USER_CFG
 #include "cmb_user_cfg.h"
 #else
+void cmb_printf(const char *__restrict __format, ...);
 /* print line, must config by user */
-#define cmb_println(...)               do { printf(__VA_ARGS__); printf("\r\n"); } while(0)
+#define cmb_println(...)               cmb_printf(__VA_ARGS__);cmb_printf("\r\n")
 /* enable bare metal(no OS) platform */
 /* #define CMB_USING_BARE_METAL_PLATFORM */
 #define CMB_USING_BARE_METAL_PLATFORM

@@ -459,7 +459,6 @@
     "debug": {
       "excludeList": [
         "<virtual_root>/platform/newlibc/newlib.s",
-        "<virtual_root>/libraries/cm_backtrace",
         "<virtual_root>/FreeRTOS",
         "<virtual_root>/Arduino/libraries/slave_i2c/soft_slave_i2c.cpp",
         "<virtual_root>/platform/ll_drivers/hc32_ll_icg.c"
@@ -579,13 +578,16 @@
         },
         "options": "null"
       },
-      "uploader": "pyOCD",
+      "uploader": "JLink",
       "uploadConfig": {
         "bin": "",
-        "targetName": "hc32f460xe",
-        "baseAddr": "0x08000000",
-        "speed": "8M",
-        "config": ".eide/debug.pyocd.yaml",
+        "baseAddr": "",
+        "cpuInfo": {
+          "vendor": "XHSC",
+          "cpuName": "HC32F460xE"
+        },
+        "proType": 1,
+        "speed": 8000,
         "otherCmds": ""
       },
       "uploadConfigMap": {

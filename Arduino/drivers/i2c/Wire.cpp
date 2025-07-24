@@ -158,6 +158,7 @@ bool TwoWire::isDeviceOnline(uint8_t address)
     if (beginTransmission(address)) {
         endTransmission();
     } else {
+        endTransmission();
         return false;
     }
     return true;

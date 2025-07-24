@@ -2,11 +2,10 @@
  * Include files
  ******************************************************************************/
 #include <Arduino.h>
+#include <cm_backtrace.h>
 #include <SparkFun_Extensible_Message_Parser.h>
-#include <stdint.h>
 
 #include "HardwareI2cSlave.h"
-#include "core_debug.h"
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
@@ -21,34 +20,31 @@ SEMP_PARSE_STATE *custom_parser = nullptr;
 
 const uint8_t messageHeaderLength = sizeof(SEMP_CUSTOM_HEADER);
 
-static bool i2c_receive_flag = true;
 // 呼吸灯参数
-static float breath_angle                    = 0.0;  // 当前角度
-static const float breath_speed              = 0.05; // 呼吸速度，可调节
-static const uint32_t breath_update_interval = 10;   // 更新间隔(ms)，值越小越丝滑
+// static float breath_angle                    = 0.0;  // 当前角度
+// static const float breath_speed              = 0.05; // 呼吸速度，可调节
+// static const uint32_t breath_update_interval = 10;   // 更新间隔(ms)，值越小越丝滑
 
-// 呼吸灯任务
-// 该任务会周期性更新呼吸灯的PWM值
-static void breath_task()
-{
-    // 使用正弦函数生成平滑的呼吸效果
-    // sin值范围[-1, 1]，转换为[0, 1023]
-    float sin_val = sin(breath_angle);
-    // 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
-    uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
+//// 呼吸灯任务
+//// 该任务会周期性更新呼吸灯的PWM值
+// static void breath_task()
+//{
+//     // 使用正弦函数生成平滑的呼吸效果
+//     // sin值范围[-1, 1]，转换为[0, 1023]
+//     float sin_val = sin(breath_angle);
+//     // 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
+//     uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
 
-    // 输出PWM
-    // analogWrite(PA0, pwm_value);
-    analogWrite(PA1, pwm_value);
-    // 更新角度
-    breath_angle += breath_speed;
-    // 防止角度过大，重置到0-2π范围
-    if (breath_angle >= 2 * PI) {
-        breath_angle = 0.0;
-    }
-}
-
-uint8_t i2c_TxBuffer[512];
+//    // 输出PWM
+//    // analogWrite(PA0, pwm_value);
+//    analogWrite(PA1, pwm_value);
+//    // 更新角度
+//    breath_angle += breath_speed;
+//    // 防止角度过大，重置到0-2π范围
+//    if (breath_angle >= 2 * PI) {
+//        breath_angle = 0.0;
+//    }
+//}
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
@@ -65,8 +61,6 @@ static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
         case 1: {
             uint8_t TXbuffer[] = {0xaa, 0x44, 0x18, 0x14, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x56, 0x30, 0x2e, 0x31, 0x00, 0x00, 0x00, 0x00, 0x56, 0x31, 0x2e, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
                                   0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x0d, 0x07, 0xe2};
-            memcpy(i2c_TxBuffer, TXbuffer, sizeof(TXbuffer));
-            i2c_slave_transmit_int(&i2c_handle_t, i2c_TxBuffer, sizeof(TXbuffer), 3000);
             break;
         }
         case 13: {
@@ -86,7 +80,6 @@ void parser_prinf_callback(const char *format, ...)
 
 void my_callback(void *address)
 {
-    CORE_DEBUG_PRINTF("0x%02x\n", *(uint8_t *)address);
     switch (*(uint8_t *)address) {
         case 0x0B: {
             CORE_DEBUG_PRINTF("0x0B BQ50Z40 FuelGauge Online\n");
@@ -106,24 +99,25 @@ int32_t main(void)
     clock_init();
     delay_init();
     Serial.begin(115200);
+    cm_backtrace_init(Firmware_Name, Hardware_Version, Software_Version);
     heap_init();
     pinMode(PC13, OUTPUT);
+    pinMode(PB3, OUTPUT, HIGH);
 
     Wire.begin();
-    // i2cSlave_init();
-    // memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
-    // custom_parser = sempBeginParser(customParserTable,
-    //                                 customParserCount,
-    //                                 customParserNames,
-    //                                 customParserNameCount,
-    //                                 0,
-    //                                 1024 * 3,
-    //                                 customParserCallback,
-    //                                 "BluetoothDebug",
-    //                                 parser_prinf_callback,
-    //                                 parser_prinf_callback);
-    // if (!custom_parser)
-    //     CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
+    i2cSlave_init();
+    custom_parser = sempBeginParser(customParserTable,
+                                    customParserCount,
+                                    customParserNames,
+                                    customParserNameCount,
+                                    0,
+                                    1024 * 3,
+                                    customParserCallback,
+                                    "BluetoothDebug",
+                                    parser_prinf_callback,
+                                    parser_prinf_callback);
+    if (!custom_parser)
+        CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     LL_PERIPH_WP(EXAMPLE_PERIPH_WP);
     // Task Create
     CORE_DEBUG_PRINTF("HelloWorld\n");
@@ -135,16 +129,14 @@ int32_t main(void)
             CORE_DEBUG_PRINTF("HelloWorld\n");
             Wire.scanDeivces(0x08, 0x60, my_callback);
         }
-        // uint8_t data[2];
-        // Wire.scanDeivces(my_callback);
-        //         i2c_slave_receive_int(&i2c_handle_t, 3000);
-        //         // 检查是否有新的数据到来
-        //         if (i2c_getcount_rxbuffer() > 0) {
-        //             uint8_t data[256];
-        //             size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
-        //             for (int i = 0; i < len; i++) {
-        //                 sempParseNextByte(custom_parser, data[i]);
-        //             }
-        //         }
+        i2c_slave_receive_int(&i2c_handle_t, 3000);
+        if (i2c_getcount_rxbuffer() > 0) {
+            CORE_DEBUG_PRINTF("Receive %d bytes\n", i2c_getcount_rxbuffer());
+            // uint8_t data[256];
+            // size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
+            // for (int i = 0; i < len; i++) {
+            //     sempParseNextByte(custom_parser, data[i]);
+            // }
+        }
     }
 }
