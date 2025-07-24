@@ -65,7 +65,7 @@ public:
 #endif
 
     bool isDeviceOnline(uint8_t address);
-    void scanDeivces(voidFuncPtrWithArg callback = nullptr);
+    void scanDeivces(uint8_t start = 0x0, uint8_t end = 0x80, voidFuncPtrWithArg callback = nullptr);
 private:
     i2c_peripheral_config_t *_config;
     bool isInitliased;

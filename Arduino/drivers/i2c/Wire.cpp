@@ -60,7 +60,7 @@ void TwoWire::begin(uint32_t clockFreq)
         return;
     }
     this->isInitliased = true;
-    CORE_DEBUG_PRINTF("I2c init success\n");
+    CORE_DEBUG_PRINTF("I2c init success, with clock:%d kHz\n", this->_clock_frequency / 1000);
     I2C_BusWaitCmd(this->_config->register_base, ENABLE);
 }
 
@@ -163,9 +163,9 @@ bool TwoWire::isDeviceOnline(uint8_t address)
     return true;
 }
 
-void TwoWire::scanDeivces(voidFuncPtrWithArg callback)
+void TwoWire::scanDeivces(uint8_t start, uint8_t end, voidFuncPtrWithArg callback)
 {
-    for (uint8_t i = 0; i < 128; i++) {
+    for (uint8_t i = start; i < end; i++) {
         if (isDeviceOnline(i)) {
             if (callback) {
                 callback(&i);

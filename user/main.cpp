@@ -86,7 +86,8 @@ void parser_prinf_callback(const char *format, ...)
 
 void my_callback(void *address)
 {
-    switch(*(uint8_t *)address) {
+    CORE_DEBUG_PRINTF("0x%02x\n", *(uint8_t *)address);
+    switch (*(uint8_t *)address) {
         case 0x0B: {
             CORE_DEBUG_PRINTF("0x0B BQ50Z40 FuelGauge Online\n");
             break;
@@ -107,7 +108,7 @@ int32_t main(void)
     Serial.begin(115200);
     heap_init();
     pinMode(PC13, OUTPUT);
-	
+
     Wire.begin();
     // i2cSlave_init();
     // memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
@@ -123,21 +124,27 @@ int32_t main(void)
     //                                 parser_prinf_callback);
     // if (!custom_parser)
     //     CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
+    LL_PERIPH_WP(EXAMPLE_PERIPH_WP);
     // Task Create
-		CORE_DEBUG_PRINTF("HelloWorld\n");
+    CORE_DEBUG_PRINTF("HelloWorld\n");
     while (true) {
-        digitalToggle(PC13);
-        uint8_t data[2];
-        Wire.scanDeivces(my_callback);
-        //        i2c_slave_receive_int(&i2c_handle_t, 3000);
-        //        // 检查是否有新的数据到来
-        //        if (i2c_getcount_rxbuffer() > 0) {
-        //            uint8_t data[256];
-        //            size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
-        //            for (int i = 0; i < len; i++) {
-        //                sempParseNextByte(custom_parser, data[i]);
-        //            }
-        //        }
-        delay_ms(1000);
+        static uint32_t tick = 0;
+        if (millis() - tick >= 1000) {
+            tick = millis();
+            digitalToggle(PC13);
+            CORE_DEBUG_PRINTF("HelloWorld\n");
+            Wire.scanDeivces(0x08, 0x60, my_callback);
+        }
+        // uint8_t data[2];
+        // Wire.scanDeivces(my_callback);
+        //         i2c_slave_receive_int(&i2c_handle_t, 3000);
+        //         // 检查是否有新的数据到来
+        //         if (i2c_getcount_rxbuffer() > 0) {
+        //             uint8_t data[256];
+        //             size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
+        //             for (int i = 0; i < len; i++) {
+        //                 sempParseNextByte(custom_parser, data[i]);
+        //             }
+        //         }
     }
 }
