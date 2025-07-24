@@ -86,8 +86,15 @@ void parser_prinf_callback(const char *format, ...)
 
 void my_callback(void *address)
 {
-    if(*(uint8_t *)address == 0x05C) {
-        CORE_DEBUG_PRINTF("Device %02x is online\n", *((uint8_t *)address));
+    switch(*(uint8_t *)address) {
+        case 0x0B: {
+            CORE_DEBUG_PRINTF("0x0B BQ50Z40 FuelGauge Online\n");
+            break;
+        }
+        case 0x5C: {
+            CORE_DEBUG_PRINTF("0x5C MP2762A Charger Online\n");
+            break;
+        }
     }
 }
 int32_t main(void)
@@ -96,10 +103,11 @@ int32_t main(void)
     LL_PERIPH_WE(EXAMPLE_PERIPH_WE);
     WRITE_REG16(CM_GPIO->PSPCR, 0x03);
     clock_init();
-    heap_init();
-    Serial.begin(115200);
     delay_init();
-    pinMode(PA0, OUTPUT);
+    Serial.begin(115200);
+    heap_init();
+    pinMode(PC13, OUTPUT);
+	
     Wire.begin();
     // i2cSlave_init();
     // memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
@@ -116,8 +124,9 @@ int32_t main(void)
     // if (!custom_parser)
     //     CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     // Task Create
+		CORE_DEBUG_PRINTF("HelloWorld\n");
     while (true) {
-        digitalToggle(PA0);
+        digitalToggle(PC13);
         uint8_t data[2];
         Wire.scanDeivces(my_callback);
         //        i2c_slave_receive_int(&i2c_handle_t, 3000);

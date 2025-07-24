@@ -25,6 +25,7 @@
  * Include files
  ******************************************************************************/
 #include "system_hc32f460.h"
+#include "hc32_ll_utility.h"
 
 /**
  * @addtogroup CMSIS
@@ -50,7 +51,7 @@
 
 /* Vector Table base offset field */
 #ifndef VECT_TAB_OFFSET
-#define VECT_TAB_OFFSET                 (0x0UL)     /*!< This value must be a multiple of 0x400. */
+#define VECT_TAB_OFFSET                 (0x8000UL)     /*!< This value must be a multiple of 0x400. */
 #endif
 /**
  * @}
@@ -102,7 +103,10 @@ void SystemInit(void)
     SystemInit_QspiMem();
 #endif /* ROM_EXT_QSPI */
     /* Configure the Vector Table relocation */
+    __disable_irq();
     SCB->VTOR = VECT_TAB_OFFSET;    /* Vector Table Relocation */
+    __enable_irq();
+    SysTick_Resume();
 }
 
 /**

@@ -40,8 +40,10 @@
 
 #define CORE_ASSERT_FAIL(message) CORE_ASSERT(false, message)
 
+#ifdef __cplusplus
 #include "WVariant.h"
 #define ASSERT_GPIO_PIN_VALID(gpio_pin, fn_name, ...) \
     CORE_ASSERT(IS_GPIO_PIN(gpio_pin), "invalid GPIO pin supplied to " fn_name, ##__VA_ARGS__)
+#endif // __cplusplus
 
 #endif // _CORE_DEBUG_H
