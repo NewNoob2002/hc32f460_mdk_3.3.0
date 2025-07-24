@@ -3,10 +3,6 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <SparkFun_Extensible_Message_Parser.h>
-#include <stdint.h>
-
-#include "HardwareI2cSlave.h"
-#include "core_debug.h"
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
