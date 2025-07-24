@@ -3,8 +3,10 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <SparkFun_Extensible_Message_Parser.h>
+#include <stdint.h>
 
 #include "HardwareI2cSlave.h"
+#include "core_debug.h"
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
@@ -82,6 +84,12 @@ void parser_prinf_callback(const char *format, ...)
     va_end(args);
 };
 
+void my_callback(void *address)
+{
+    if(*(uint8_t *)address == 0x05C) {
+        CORE_DEBUG_PRINTF("Device %02x is online\n", *((uint8_t *)address));
+    }
+}
 int32_t main(void)
 {
     /* Register write enable for some required peripherals. */
@@ -93,9 +101,6 @@ int32_t main(void)
     delay_init();
     pinMode(PA0, OUTPUT);
     Wire.begin();
-    if (Wire.isDeviceOnline(0x0B)) {
-        CORE_DEBUG_PRINTF("found 0x0b\n");
-    }
     // i2cSlave_init();
     // memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
     // custom_parser = sempBeginParser(customParserTable,
@@ -113,9 +118,8 @@ int32_t main(void)
     // Task Create
     while (true) {
         digitalToggle(PA0);
-        if (Wire.isDeviceOnline(0x0B)) {
-            CORE_DEBUG_PRINTF("found 0x0b\n");
-        }
+        uint8_t data[2];
+        Wire.scanDeivces(my_callback);
         //        i2c_slave_receive_int(&i2c_handle_t, 3000);
         //        // 检查是否有新的数据到来
         //        if (i2c_getcount_rxbuffer() > 0) {
