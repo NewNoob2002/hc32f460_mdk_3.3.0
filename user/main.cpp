@@ -87,9 +87,7 @@ void parser_prinf_callback(const char *format, ...)
 
 void my_callback(void *address)
 {
-    if(*(uint8_t *)address == 0x05C) {
-        CORE_DEBUG_PRINTF("Device %02x is online\n", *((uint8_t *)address));
-    }
+    CORE_DEBUG_PRINTF("Device %02x is online\n", *((uint8_t *)address));
 }
 int32_t main(void)
 {
@@ -123,6 +121,7 @@ int32_t main(void)
             tick = millis();
             digitalToggle(PA0);
             CORE_DEBUG_PRINTF("tick: %d\n", tick);
+            Wire.scanDeivces(my_callback);
         }
         // uint8_t data[2];
         // Wire.scanDeivces(my_callback);

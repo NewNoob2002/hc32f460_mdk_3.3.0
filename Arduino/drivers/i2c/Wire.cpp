@@ -11,7 +11,7 @@ i2c_peripheral_config_t I2C2_config = {
     .sda_pin_function = Func_I2c2_Sda,
 };
 
-TwoWire Wire(&I2C2_config, PA3, PA4);
+TwoWire Wire(&I2C2_config, PA9, PA8);
 
 #define REG_TO_I2Cx(reg) ((reg == CM_I2C1) ? "I2C1" : (reg == CM_I2C2) ? "I2C2" \
                                                   : (reg == CM_I2C3)   ? "I2C3" \
@@ -158,6 +158,7 @@ bool TwoWire::isDeviceOnline(uint8_t address)
     if (beginTransmission(address)) {
         endTransmission();
     } else {
+        endTransmission();
         return false;
     }
     return true;
@@ -165,7 +166,7 @@ bool TwoWire::isDeviceOnline(uint8_t address)
 
 void TwoWire::scanDeivces(voidFuncPtrWithArg callback)
 {
-    for (uint8_t i = 0; i < 128; i++) {
+    for (uint8_t i = 0x01; i < 0x7F; i++) {
         if (isDeviceOnline(i)) {
             if (callback) {
                 callback(&i);
