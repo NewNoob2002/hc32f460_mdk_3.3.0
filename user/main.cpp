@@ -97,9 +97,9 @@ int32_t main(void)
     LL_PERIPH_WE(EXAMPLE_PERIPH_WE);
     WRITE_REG16(CM_GPIO->PSPCR, 0x03);
     clock_init();
-    heap_init();
-    Serial.begin(115200);
     delay_init();
+    Serial.begin(115200);
+    heap_init();
     pinMode(PA0, OUTPUT);
     Wire.begin();
     // i2cSlave_init();
