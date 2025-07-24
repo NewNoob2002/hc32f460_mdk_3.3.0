@@ -7,6 +7,7 @@
 
 #include "HardwareI2cSlave.h"
 #include "core_debug.h"
+#include "delay.h"
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
@@ -117,9 +118,14 @@ int32_t main(void)
     //     CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     // Task Create
     while (true) {
-        digitalToggle(PA0);
-        uint8_t data[2];
-        Wire.scanDeivces(my_callback);
+        static uint32_t tick = 0;
+        if(millis() - tick >= 1000) {
+            tick = millis();
+            digitalToggle(PA0);
+            CORE_DEBUG_PRINTF("tick: %d\n", tick);
+        }
+        // uint8_t data[2];
+        // Wire.scanDeivces(my_callback);
         //        i2c_slave_receive_int(&i2c_handle_t, 3000);
         //        // 检查是否有新的数据到来
         //        if (i2c_getcount_rxbuffer() > 0) {
@@ -129,6 +135,5 @@ int32_t main(void)
         //                sempParseNextByte(custom_parser, data[i]);
         //            }
         //        }
-        delay_ms(1000);
     }
 }
