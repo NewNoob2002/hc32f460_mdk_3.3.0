@@ -7,7 +7,6 @@
 
 #include "HardwareI2cSlave.h"
 #include "core_debug.h"
-#include "delay.h"
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
@@ -50,23 +49,21 @@ static void breath_task()
 }
 
 uint8_t i2c_RxBuffer[60];
+uint8_t i2c_TxBuffer[512];
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
+    Wire_SLAVE.slave_change_mode(SLAVE_MODE_TX);
     // 处理自定义解析器的回调
     SEMP_CUSTOM_HEADER *messageHeader = (SEMP_CUSTOM_HEADER *)parse->buffer;
     uint16_t messageId                = messageHeader->messageId;
     uint8_t messageType               = messageHeader->messageType;
-
-    for (int i = 0; i < parse->length; i++) {
-        CORE_DEBUG_PRINTF("%02x ", parse->buffer[i]);
-    }
-    CORE_DEBUG_PRINTF("\n");
     switch (messageId) {
         case 1: {
+            CORE_DEBUG_PRINTF("messageId:%d messageType:%d\n", messageId, messageType);
             uint8_t TXbuffer[] = {0xaa, 0x44, 0x18, 0x14, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x56, 0x30, 0x2e, 0x31, 0x00, 0x00, 0x00, 0x00, 0x56, 0x31, 0x2e, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
                                   0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x0d, 0x07, 0xe2};
-
+            memcpy(i2c_TxBuffer, TXbuffer, sizeof(TXbuffer));
             break;
         }
     }
@@ -94,8 +91,11 @@ int32_t main(void)
     heap_init();
     pinMode(PA0, OUTPUT);
     Wire.begin();
-    i2cSlave_init();
-    memset(i2c_RxBuffer, 0, sizeof(i2c_RxBuffer));
+
+    Wire_SLAVE.setSlaveAddress(0x11);
+    Wire_SLAVE.begin(400 * 1000);
+    memset(i2c_RxBuffer, 0xff, sizeof(i2c_RxBuffer));
+    memset(i2c_TxBuffer, 0xff, sizeof(i2c_TxBuffer));
     custom_parser = sempBeginParser(customParserTable,
                                     customParserCount,
                                     customParserNames,
@@ -115,21 +115,27 @@ int32_t main(void)
         if (millis() - tick >= 1000) {
             tick = millis();
             digitalToggle(PA0);
-            Wire.scanDeivces(my_callback);
+            // Wire.scanDeivces(my_callback);
         }
-        //        if (i2c_slave_get_addrMatched()) {
-        //            if (LL_ERR != I2C_Slave_Receive(i2c_RxBuffer, sizeof(i2c_RxBuffer), 3000)) {
-        //                CORE_DEBUG_PRINTF("read success\n");
-        //            }
-        //        }
-        //        i2c_slave_receive_int(&i2c_handle_t, 3000);
-        //        // 检查是否有新的数据到来
-        //        if (i2c_getcount_rxbuffer() > 0) {
-        //            uint8_t data[256];
-        //            size_t len = i2c_read_rxbuffer(data, i2c_getcount_rxbuffer());
-        //            for (int i = 0; i < len; i++) {
-        //                sempParseNextByte(custom_parser, data[i]);
-        //            }
-        //        }
+        if (Wire_SLAVE.slave_address_match()) {
+            switch (Wire_SLAVE.get_slave_work_mode()) {
+                case SLAVE_MODE_RX: {
+                    size_t len = Wire_SLAVE.slave_receive();
+                    CORE_DEBUG_PRINTF("Received %d bytes\n", len);
+                    if (len > 0) {
+                        size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, len);
+                        for (int i = 0; i < read_len; i++) {
+                            sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
+                        }
+                    }
+                    break;
+                }
+                case SLAVE_MODE_TX: {
+                    size_t send_len = Wire_SLAVE.slave_transmit(i2c_TxBuffer);
+                    Wire_SLAVE.slave_change_mode(SLAVE_MODE_RX);
+                    CORE_DEBUG_PRINTF("send Bytes:%d\n", send_len);
+                }
+            }
+        }
     }
 }

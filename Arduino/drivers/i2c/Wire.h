@@ -7,8 +7,8 @@
 
 #define WIRE_TIMEOUT 0x40000UL
 
-#ifndef WIRE_BUFF_SIZE
-#define WIRE_BUFF_SIZE 128
+#ifndef WIRE_RX_BUFF_SIZE
+#define WIRE_RX_BUFF_SIZE 1024
 #endif
 
 /* I2C address mode */
@@ -43,6 +43,11 @@ struct i2c_peripheral_config_t
     uint16_t sda_pin_function;
 };
 
+typedef enum slave_work_mode_t{
+    SLAVE_MODE_RX,
+    SLAVE_MODE_TX
+} slave_work_mode_t;
+
 class TwoWire{
 public:
 	TwoWire(i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t sda_pin);
@@ -63,6 +68,18 @@ public:
 	uint8_t endTransmission(bool stopBit = true);
 
     bool slave_address_match();
+    size_t slave_receive(uint32_t timeout = WIRE_TIMEOUT);
+    size_t slave_transmit(uint8_t *data, uint32_t timeout = WIRE_TIMEOUT);
+    void slave_change_mode(slave_work_mode_t mode)
+    {
+        this->slave_workMode = mode;
+    }
+
+    slave_work_mode_t get_slave_work_mode()
+    {
+        return this->slave_workMode;
+    }
+    size_t read(uint8_t *buffer, size_t quantity);
 
 	size_t write(uint8_t data);
 	size_t write(const uint8_t * data, size_t quantity);
@@ -75,16 +92,18 @@ private:
     bool isInitliased = false;
     bool enableSlave = false;
     uint8_t slave_address = 0;
+    slave_work_mode_t slave_workMode = SLAVE_MODE_RX;
 
     gpio_pin_t _scl_pin;
     gpio_pin_t _sda_pin;
 
     uint32_t _clock_frequency;
     uint8_t *rxbuff = nullptr;
-    uint8_t *txbuff = nullptr;
+    // uint8_t *txbuff = nullptr;
 
     lwrb_t rx_rb_t;
-    lwrb_t tx_rb_t;
+    // lwrb_t tx_rb_t;
 };
 
 extern TwoWire Wire;
+extern TwoWire Wire_SLAVE;
