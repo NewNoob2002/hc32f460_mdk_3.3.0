@@ -49,7 +49,7 @@ static void breath_task()
     }
 }
 
-uint8_t i2c_TxBuffer[512];
+uint8_t i2c_RxBuffer[512];
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
@@ -66,13 +66,7 @@ static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
         case 1: {
             uint8_t TXbuffer[] = {0xaa, 0x44, 0x18, 0x14, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x56, 0x30, 0x2e, 0x31, 0x00, 0x00, 0x00, 0x00, 0x56, 0x31, 0x2e, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
                                   0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x0d, 0x07, 0xe2};
-            memcpy(i2c_TxBuffer, TXbuffer, sizeof(TXbuffer));
-            i2c_slave_transmit_int(&i2c_handle_t, i2c_TxBuffer, sizeof(TXbuffer), 3000);
-            break;
-        }
-        case 13: {
-            uint8_t TXbuffer[] = {0xAA, 0x44, 0x18};
-            i2c_slave_transmit_int(&i2c_handle_t, TXbuffer, sizeof(TXbuffer), 3000);
+
             break;
         }
     }
@@ -100,31 +94,34 @@ int32_t main(void)
     heap_init();
     pinMode(PA0, OUTPUT);
     Wire.begin();
-    // i2cSlave_init();
-    // memset(i2c_TxBuffer, 0, sizeof(i2c_TxBuffer));
-    // custom_parser = sempBeginParser(customParserTable,
-    //                                 customParserCount,
-    //                                 customParserNames,
-    //                                 customParserNameCount,
-    //                                 0,
-    //                                 1024 * 3,
-    //                                 customParserCallback,
-    //                                 "BluetoothDebug",
-    //                                 parser_prinf_callback,
-    //                                 parser_prinf_callback);
-    // if (!custom_parser)
-    //     CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
+    i2cSlave_init();
+    memset(i2c_RxBuffer, 0, sizeof(i2c_RxBuffer));
+    custom_parser = sempBeginParser(customParserTable,
+                                    customParserCount,
+                                    customParserNames,
+                                    customParserNameCount,
+                                    0,
+                                    1024 * 3,
+                                    customParserCallback,
+                                    "BluetoothDebug",
+                                    parser_prinf_callback,
+                                    parser_prinf_callback);
+    if (!custom_parser)
+        CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     // Task Create
     while (true) {
         static uint32_t tick = 0;
-        if(millis() - tick >= 1000) {
+        if (millis() - tick >= 1000) {
             tick = millis();
             digitalToggle(PA0);
             CORE_DEBUG_PRINTF("tick: %d\n", tick);
             Wire.scanDeivces(my_callback);
         }
-        // uint8_t data[2];
-        // Wire.scanDeivces(my_callback);
+        if (i2c_slave_get_addrMatched()) {
+            if (LL_ERR != I2C_Slave_Receive(i2c_RxBuffer, sizeof(i2c_RxBuffer), 3000)) {
+                CORE_DEBUG_PRINTF("read success\n");
+            }
+        }
         //        i2c_slave_receive_int(&i2c_handle_t, 3000);
         //        // 检查是否有新的数据到来
         //        if (i2c_getcount_rxbuffer() > 0) {

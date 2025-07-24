@@ -7,6 +7,8 @@
 #define I2C_UNIT                 (CM_I2C1)
 #define I2C_FCG_USE              (FCG1_PERIPH_I2C1)
 
+#define I2C_SLAVE_USE_IRQN         0
+
 #define I2C_SLAVE_SCL_PIN        (PA3)
 #define I2C_SLAVE_SDA_PIN        (PA4)
 #define I2C_GPIO_SCL_FUNC        (GPIO_FUNC_49)
@@ -74,12 +76,16 @@ struct i2c_interrupt_config_t {
 };
 
 int32_t i2cSlave_init();
+#if defined (I2C_SLAVE_USE_IRQN) && (I2C_SLAVE_USE_IRQN != 0)
 i2c_status_type i2c_wait_end(i2c_handle_type* hi2c, uint32_t timeout);
 i2c_status_type i2c_slave_receive_int(i2c_handle_type *hi2c, uint32_t timeout);
 i2c_status_type i2c_slave_transmit_int(i2c_handle_type *hi2c, uint8_t* buff, uint32_t size, uint32_t timeout);
 size_t i2c_getcount_rxbuffer();
 size_t i2c_read_rxbuffer(uint8_t *data, uint32_t size);
 // size_t i2c_write_txbuffer(const uint8_t *data, uint32_t size);
-
+#endif
+bool i2c_slave_get_addrMatched();
+int32_t I2C_Slave_Receive(uint8_t *au8Data, uint32_t u32Size, uint32_t u32Timeout);
+int32_t I2C_Slave_Transmit(uint8_t *au8Data, uint32_t u32Size, uint32_t u32Timeout);
 extern i2c_handle_type i2c_handle_t;
 #endif

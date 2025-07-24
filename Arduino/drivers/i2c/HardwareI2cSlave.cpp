@@ -13,6 +13,7 @@
 #define I2C_DEBUG_PRINTF(fmt, ...)
 #endif
 
+#if defined(I2C_SLAVE_USE_IRQN) && (I2C_SLAVE_USE_IRQN != 0)
 static lwrb_t rx_rb_t;     /*!< Receive ring buffer */
 static lwrb_t tx_rb_t;     /*!< Transmit ring buffer */
 uint8_t *rxbuff = nullptr; /*!< pointer to i2c transfer buffer  */
@@ -271,7 +272,61 @@ size_t i2c_read_rxbuffer(uint8_t *data, uint32_t size)
 //     size_t write_len = lwrb_write(&tx_rb_t, data, size);
 //     return write_len;
 // }
+#endif
+bool i2c_slave_get_addrMatched()
+{
+    I2C_Cmd(I2C_UNIT, ENABLE);
+    /* Clear status */
+    I2C_ClearStatus(I2C_UNIT, I2C_CLR_STOPFCLR | I2C_CLR_NACKFCLR);
+    /* Wait slave address matched */
+    if (SET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_MATCH_ADDR0)) {
+        return true;
+    }
+    return false;
+}
 
+int32_t I2C_Slave_Receive(uint8_t *au8Data, uint32_t u32Size, uint32_t u32Timeout)
+{
+    int32_t i32Ret;
+    I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR);
+
+    if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+        /* Slave receive data*/
+        i32Ret = I2C_ReceiveData(I2C_UNIT, au8Data, u32Size, u32Timeout);
+
+        if ((LL_OK == i32Ret) || (LL_ERR_TIMEOUT == i32Ret)) {
+            /* Wait stop condition */
+            i32Ret = I2C_WaitStatus(I2C_UNIT, I2C_FLAG_STOP, SET, u32Timeout);
+        }
+    } else {
+        i32Ret = LL_ERR;
+    }
+
+    I2C_Cmd(I2C_UNIT, DISABLE);
+    return i32Ret;
+}
+
+int32_t I2C_Slave_Transmit(uint8_t *au8Data, uint32_t u32Size, uint32_t u32Timeout)
+{
+    int32_t i32Ret;
+    I2C_ClearStatus(I2C_UNIT, I2C_CLR_SLADDR0FCLR);
+    if (RESET == I2C_GetStatus(I2C_UNIT, I2C_FLAG_TRA)) {
+        i32Ret = LL_ERR;
+    } else {
+        i32Ret = I2C_TransData(I2C_UNIT, au8Data, u32Size, u32Timeout);
+
+        if ((LL_OK == i32Ret) || (LL_ERR_TIMEOUT == i32Ret)) {
+            /* Release SCL pin */
+            (void)I2C_ReadData(I2C_UNIT);
+
+            /* Wait stop condition */
+            i32Ret = I2C_WaitStatus(I2C_UNIT, I2C_FLAG_STOP, SET, u32Timeout);
+        }
+    }
+
+    I2C_Cmd(I2C_UNIT, DISABLE);
+    return i32Ret;
+}
 /**
  * @brief   Initialize the I2C peripheral for slave
  * @param   None
@@ -285,8 +340,9 @@ int32_t i2cSlaveConfig_Initialize()
     stc_i2c_init_t stcI2cInit;
     stc_irq_signin_config_t stcIrqRegCfg;
     float32_t fErr;
-
+#if defined(I2C_SLAVE_USE_IRQN) && (I2C_SLAVE_USE_IRQN != 0)
     i2c_buffer_init();
+#endif
     (void)I2C_DeInit(I2C_UNIT);
 
     (void)I2C_StructInit(&stcI2cInit);
@@ -298,15 +354,18 @@ int32_t i2cSlaveConfig_Initialize()
     if (LL_OK == i32Ret) {
         /* Set slave address*/
         I2C_SlaveAddrConfig(I2C_UNIT, I2C_ADDR0, I2C_ADDR_7BIT, I2C_SLAVE_ADDRESS);
+
+#if defined(I2C_SLAVE_USE_IRQN) && (I2C_SLAVE_USE_IRQN != 0)
         /* Enable I2C peripheral */
         i2c_irq_register(event_error_irq, "i2c1_event_error_irq", DDL_IRQ_PRIO_05);
 
         i2c_irq_register(transfer_end_irq, "i2c1_transfer_end_irq", DDL_IRQ_PRIO_08);
 
         i2c_irq_register(receive_buffer_full_irq, "i2c1_receive_buffer_full_irq", DDL_IRQ_PRIO_08);
-
         I2C_Cmd(I2C_UNIT, ENABLE);
-        I2C_DEBUG_PRINTF("I2C slave initialized with address 0x%02X\n", I2C_SLAVE_ADDRESS);
+#endif
+
+        I2C_DEBUG_PRINTF("I2C slave initialized with address 0x%02X, %s\n", I2C_SLAVE_ADDRESS, I2C_SLAVE_USE_IRQN ? "interrupt mode" : "polling mode");
 
         return LL_OK;
     } else {
@@ -323,6 +382,7 @@ void i2cSlaveConfig_Deinitialize()
     I2C_Cmd(I2C_UNIT, DISABLE);
 
     I2C_DeInit(I2C_UNIT);
+#if defined(I2C_SLAVE_USE_IRQN) && (I2C_SLAVE_USE_IRQN != 0)
     /* Unregister IRQ handlers */
     i2c_irq_resign(event_error_irq, "I2C1_EEI_IRQ");
     i2c_irq_resign(transfer_end_irq, "I2C1_TEI_IRQ");
@@ -333,13 +393,13 @@ void i2cSlaveConfig_Deinitialize()
     lwrb_free(&rx_rb_t);
     lwmem_free(txbuff);
     lwrb_free(&tx_rb_t);
+#endif
 }
 
 int32_t i2cSlave_init()
 {
     /* Enable I2C Peripheral*/
     FCG_Fcg1PeriphClockCmd(I2C_FCG_USE, ENABLE);
-    i2c_buffer_init();
     /* Initialize I2C port*/
     GPIO_SetFunction(I2C_SLAVE_SCL_PIN, I2C_GPIO_SCL_FUNC);
     GPIO_SetFunction(I2C_SLAVE_SDA_PIN, I2C_GPIO_SDA_FUNC);
