@@ -48,7 +48,6 @@ static void breath_task()
     }
 }
 
-uint8_t i2c_RxBuffer[60];
 uint8_t i2c_TxBuffer[512];
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
@@ -94,7 +93,6 @@ int32_t main(void)
 
     Wire_SLAVE.setSlaveAddress(0x11);
     Wire_SLAVE.begin(400 * 1000);
-    memset(i2c_RxBuffer, 0xff, sizeof(i2c_RxBuffer));
     memset(i2c_TxBuffer, 0xff, sizeof(i2c_TxBuffer));
     custom_parser = sempBeginParser(customParserTable,
                                     customParserCount,
@@ -123,6 +121,7 @@ int32_t main(void)
                     size_t len = Wire_SLAVE.slave_receive();
                     CORE_DEBUG_PRINTF("Received %d bytes\n", len);
                     if (len > 0) {
+                        uint8_t i2c_RxBuffer[60];
                         size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, len);
                         for (int i = 0; i < read_len; i++) {
                             sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
