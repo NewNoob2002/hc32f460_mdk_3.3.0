@@ -444,6 +444,15 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "MillisTaskManager",
+            "files": [
+              {
+                "path": "libraries/MillisTaskManager/MillisTaskManager.cpp"
+              }
+            ],
+            "folders": []
           }
         ]
       }
@@ -459,9 +468,9 @@
     "debug": {
       "excludeList": [
         "<virtual_root>/platform/newlibc/newlib.s",
-        "<virtual_root>/FreeRTOS",
         "<virtual_root>/Arduino/libraries/slave_i2c/soft_slave_i2c.cpp",
-        "<virtual_root>/platform/ll_drivers/hc32_ll_icg.c"
+        "<virtual_root>/platform/ll_drivers/hc32_ll_icg.c",
+        "<virtual_root>/FreeRTOS"
       ],
       "toolchain": "AC6",
       "compileConfig": {
@@ -578,16 +587,13 @@
         },
         "options": "null"
       },
-      "uploader": "JLink",
+      "uploader": "pyOCD",
       "uploadConfig": {
         "bin": "",
-        "baseAddr": "",
-        "cpuInfo": {
-          "vendor": "XHSC",
-          "cpuName": "HC32F460xE"
-        },
-        "proType": 1,
-        "speed": 8000,
+        "targetName": "hc32f460xe",
+        "baseAddr": "0x08000000",
+        "speed": "8M",
+        "config": ".eide/debug.pyocd.yaml",
         "otherCmds": ""
       },
       "uploadConfigMap": {
@@ -635,15 +641,15 @@
           "libraries/lwmem/src/include",
           "libraries/Parser",
           "libraries/lwrb/src/include",
-          "Arduino/drivers/i2c"
+          "Arduino/drivers/i2c",
+          "libraries/MillisTaskManager"
         ],
         "libList": [],
         "defineList": [
           "HC32F460",
           "USE_DDL_DRIVER",
           "__DEBUG",
-          "__CORE_DEBUG",
-          "__FPU_PRESENT=1"
+          "__CORE_DEBUG"
         ]
       },
       "builderOptions": {

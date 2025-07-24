@@ -106,4 +106,4 @@ private:
 };
 
 extern TwoWire Wire;
-extern TwoWire Wire_SLAVE;
+extern TwoWire Wire_Slave;

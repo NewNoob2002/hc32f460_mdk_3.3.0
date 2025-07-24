@@ -17,7 +17,7 @@ i2c_peripheral_config_t I2C2_config = {
 };
 
 TwoWire Wire(&I2C2_config, PA9, PA8);
-TwoWire Wire_SLAVE(&I2C1_config, PA3, PA4);
+TwoWire Wire_Slave(&I2C1_config, PA3, PA2);
 
 #define REG_TO_I2Cx(reg) ((reg == CM_I2C1) ? "I2C1" : (reg == CM_I2C2) ? "I2C2" \
                                                   : (reg == CM_I2C3)   ? "I2C3" \

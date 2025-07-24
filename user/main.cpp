@@ -2,6 +2,8 @@
  * Include files
  ******************************************************************************/
 #include <Arduino.h>
+#include "MillisTaskManager.h"
+#include "delay.h"
 #include <SparkFun_Extensible_Message_Parser.h>
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
@@ -23,32 +25,33 @@ static float breath_angle                    = 0.0;  // 当前角度
 static const float breath_speed              = 0.05; // 呼吸速度，可调节
 static const uint32_t breath_update_interval = 10;   // 更新间隔(ms)，值越小越丝滑
 
+static MillisTaskManager taskManager; // 创建任务管理器实例，开启优先级
 // 呼吸灯任务
 // 该任务会周期性更新呼吸灯的PWM值
-static void breath_task()
-{
-    // 使用正弦函数生成平滑的呼吸效果
-    // sin值范围[-1, 1]，转换为[0, 1023]
-    float sin_val = sin(breath_angle);
-    // 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
-    uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
+// static void breath_task()
+// {
+//     // 使用正弦函数生成平滑的呼吸效果
+//     // sin值范围[-1, 1]，转换为[0, 1023]
+//     float sin_val = sin(breath_angle);
+//     // 将[-1,1]映射到[0,1023]，使用(sin+1)/2确保值为正
+//     uint32_t pwm_value = (uint32_t)((sin_val + 1.0) / 2.0 * 1023);
 
-    // 输出PWM
-    // analogWrite(PA0, pwm_value);
-    analogWrite(PA1, pwm_value);
-    // 更新角度
-    breath_angle += breath_speed;
-    // 防止角度过大，重置到0-2π范围
-    if (breath_angle >= 2 * PI) {
-        breath_angle = 0.0;
-    }
-}
+//     // 输出PWM
+//     // analogWrite(PA0, pwm_value);
+//     analogWrite(PA1, pwm_value);
+//     // 更新角度
+//     breath_angle += breath_speed;
+//     // 防止角度过大，重置到0-2π范围
+//     if (breath_angle >= 2 * PI) {
+//         breath_angle = 0.0;
+//     }
+// }
 
 uint8_t i2c_TxBuffer[512];
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
-    Wire_SLAVE.slave_change_mode(SLAVE_MODE_TX);
+    Wire_Slave.slave_change_mode(SLAVE_MODE_TX);
     // 处理自定义解析器的回调
     SEMP_CUSTOM_HEADER *messageHeader = (SEMP_CUSTOM_HEADER *)parse->buffer;
     uint16_t messageId                = messageHeader->messageId;
@@ -75,6 +78,36 @@ void my_callback(void *address)
 {
     CORE_DEBUG_PRINTF("Device %02x is online\n", *((uint8_t *)address));
 }
+
+static void loop_task()
+{
+    digitalToggle(PA0);
+    Wire.scanDeivces(my_callback);
+}
+
+static void i2c_slave_task()
+{
+    if (Wire_Slave.slave_address_match()) {
+        switch (Wire_Slave.get_slave_work_mode()) {
+            case SLAVE_MODE_RX: {
+                size_t len = Wire_Slave.slave_receive();
+                if (len > 0) {
+                    uint8_t i2c_RxBuffer[60];
+                    size_t read_len = Wire_Slave.read(i2c_RxBuffer, len);
+                    for (int i = 0; i < read_len; i++) {
+                        sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
+                    }
+                }
+                break;
+            }
+            case SLAVE_MODE_TX: {
+                size_t send_len = Wire_Slave.slave_transmit(i2c_TxBuffer);
+                Wire_Slave.slave_change_mode(SLAVE_MODE_RX);
+                break;
+            }
+        }
+    }
+}
 int32_t main(void)
 {
     /* Register write enable for some required peripherals. */
@@ -87,8 +120,8 @@ int32_t main(void)
     pinMode(PA0, OUTPUT);
     Wire.begin();
 
-    Wire_SLAVE.setSlaveAddress(0x11);
-    Wire_SLAVE.begin(400 * 1000);
+    Wire_Slave.setSlaveAddress(0x11);
+    Wire_Slave.begin(400 * 1000);
     memset(i2c_TxBuffer, 0xff, sizeof(i2c_TxBuffer));
     custom_parser = sempBeginParser(customParserTable,
                                     customParserCount,
@@ -102,35 +135,10 @@ int32_t main(void)
                                     parser_prinf_callback);
     if (!custom_parser)
         CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
-    uint8_t buffer[8] = {0x02, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x01, 0x02};
     // Task Create
+    taskManager.Register(loop_task, 1000);
     while (true) {
-        static uint32_t tick = 0;
-        if (millis() - tick >= 1000) {
-            tick = millis();
-            digitalToggle(PA0);
-            // Wire.scanDeivces(my_callback);
-        }
-        if (Wire_SLAVE.slave_address_match()) {
-            switch (Wire_SLAVE.get_slave_work_mode()) {
-                case SLAVE_MODE_RX: {
-                    size_t len = Wire_SLAVE.slave_receive();
-                    CORE_DEBUG_PRINTF("Received %d bytes\n", len);
-                    if (len > 0) {
-                        uint8_t i2c_RxBuffer[60];
-                        size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, len);
-                        for (int i = 0; i < read_len; i++) {
-                            sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
-                        }
-                    }
-                    break;
-                }
-                case SLAVE_MODE_TX: {
-                    size_t send_len = Wire_SLAVE.slave_transmit(i2c_TxBuffer);
-                    Wire_SLAVE.slave_change_mode(SLAVE_MODE_RX);
-                    CORE_DEBUG_PRINTF("send Bytes:%d\n", send_len);
-                }
-            }
-        }
+        taskManager.Running(millis());
+        i2c_slave_task();
     }
 }
