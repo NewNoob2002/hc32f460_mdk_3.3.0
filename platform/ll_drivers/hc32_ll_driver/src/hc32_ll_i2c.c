@@ -32,7 +32,7 @@
  ******************************************************************************/
 #include "hc32_ll_i2c.h"
 #include "hc32_ll_utility.h"
-
+#include <stdio.h>
 /**
  * @addtogroup LL_Driver
  * @{
@@ -1121,7 +1121,6 @@ int32_t I2C_MasterReceiveDataAndStop(CM_I2C_TypeDef *I2Cx, uint8_t au8RxData[], 
 
     if (au8RxData != NULL) {
         uint32_t u32FastAckDis = READ_REG32_BIT(I2Cx->CR3, I2C_CR3_FACKEN);
-
         for (i = 0UL; i < u32Size; i++) {
             i32Ret = I2C_WaitStatus(I2Cx, I2C_FLAG_RX_FULL, SET, u32Timeout);
 

@@ -82,6 +82,7 @@ void TwoWire::begin(uint32_t clockFreq)
         WIRE_DEBUG_PRINTF("I2c init success, in mode: slave, scl pin: %d, sda pin: %d, slave address: 0x%02x\n",
                           this->_scl_pin, this->_sda_pin, this->slave_address);
     } else {
+        // I2C_FastAckCmd(this->_config->register_base, DISABLE);
         I2C_BusWaitCmd(this->_config->register_base, ENABLE);
         WIRE_DEBUG_PRINTF("I2c init success, in mode: master, scl pin: %d, sda pin: %d\n", this->_scl_pin, this->_sda_pin);
     }
@@ -158,25 +159,24 @@ size_t TwoWire::slave_receive(uint32_t timeout)
                 /* read data from register */
                 uint8_t ch = I2C_ReadData(this->_config->register_base);
                 rx_data_count += lwrb_write(&this->rx_rb_t, &ch, 1);
-            } 
+            }
             // else {
             //     I2C_AckConfig(this->_config->register_base, I2C_ACK);
             //     break;
             // }
         };
         I2C_Cmd(this->_config->register_base, DISABLE);
-
     }
     return rx_data_count;
 }
 
 size_t TwoWire::slave_transmit(uint8_t *tx_buffer, uint32_t timeout)
 {
-    int32_t i32Ret = LL_ERR;
+    int32_t i32Ret         = LL_ERR;
     uint16_t tx_data_count = 0;
     I2C_ClearStatus(this->_config->register_base, I2C_CLR_SLADDR0FCLR);
-    if(SET == I2C_GetStatus(this->_config->register_base, I2C_FLAG_TRA)){ 
-        while(I2C_GetStatus(this->_config->register_base, I2C_FLAG_STOP) == RESET){
+    if (SET == I2C_GetStatus(this->_config->register_base, I2C_FLAG_TRA)) {
+        while (I2C_GetStatus(this->_config->register_base, I2C_FLAG_STOP) == RESET) {
             i32Ret = I2C_WaitStatus(this->_config->register_base, I2C_FLAG_TX_EMPTY, SET, timeout);
             if (i32Ret == LL_OK) {
                 /* write data to register */
@@ -188,9 +188,7 @@ size_t TwoWire::slave_transmit(uint8_t *tx_buffer, uint32_t timeout)
                 tx_data_count++;
             }
         }
-    }
-    else
-    {
+    } else {
         return 0;
     }
     return tx_data_count;
@@ -270,6 +268,7 @@ size_t TwoWire::requestFrom(uint8_t address, uint8_t register_address, uint8_t *
         return 0;
     }
     int32_t ret = LL_ERR;
+
     if (write(register_address) == 0) {
         WIRE_DEBUG_PRINTF("I2c write register address failed\n");
         return 0;
@@ -279,20 +278,27 @@ size_t TwoWire::requestFrom(uint8_t address, uint8_t register_address, uint8_t *
         WIRE_DEBUG_PRINTF("I2c restart failed, ret = %d\n", ret);
         return 0;
     }
+    if (1UL == quantity) {
+        I2C_AckConfig(this->_config->register_base, I2C_NACK);
+    }
     ret = I2C_TransAddr(this->_config->register_base, address, I2C_DIR_RX, WIRE_TIMEOUT);
     if (ret != LL_OK) {
-        WIRE_DEBUG_PRINTF("I2c restart trans addr failed, ret = %d\n", ret);
+        WIRE_DEBUG_PRINTF("I2c trans address failed, ret = %d\n", ret);
         return 0;
     }
     if (sendStop) {
-        if (LL_OK == I2C_MasterReceiveDataAndStop(this->_config->register_base, buffer, quantity, WIRE_TIMEOUT)) {
-            WIRE_DEBUG_PRINTF("I2c receive data success\n");
-            return quantity;
-        }
+        ret = I2C_MasterReceiveDataAndStop(this->_config->register_base, buffer, quantity, WIRE_TIMEOUT);
     }
-
-    WIRE_DEBUG_PRINTF("I2c receive data failed\n");
-    return 0;
+    I2C_AckConfig(this->_config->register_base, I2C_ACK);
+    if (LL_OK != ret) {
+        I2C_Stop(this->_config->register_base, WIRE_TIMEOUT);
+        WIRE_DEBUG_PRINTF("I2c read register 0x%02x form 0x%02x  %d bytes failed, return %d\n", register_address, address, quantity, ret);
+        quantity = 0;
+    } else {
+        WIRE_DEBUG_PRINTF("I2c read register 0x%02x form 0x%02x %d bytes success\n", register_address, address, quantity);
+    }
+    I2C_Cmd(this->_config->register_base, DISABLE);
+    return quantity;
 }
 
 bool TwoWire::isDeviceOnline(uint8_t address)
@@ -320,6 +326,8 @@ void TwoWire::scanDeivces(voidFuncPtrWithArg callback)
         if (isDeviceOnline(i)) {
             if (callback) {
                 callback(&i);
+            } else {
+                WIRE_DEBUG_PRINTF("Scan device address: 0x%02x", i);
             }
         }
     }
