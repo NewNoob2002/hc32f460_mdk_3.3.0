@@ -74,11 +74,12 @@ public:
     {
         this->slave_workMode = mode;
     }
-
     slave_work_mode_t get_slave_work_mode()
     {
         return this->slave_workMode;
     }
+
+    size_t available();
     size_t read(uint8_t *buffer, size_t quantity);
 
 	size_t write(uint8_t data);

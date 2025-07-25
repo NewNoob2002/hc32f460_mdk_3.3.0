@@ -3,10 +3,6 @@
  ******************************************************************************/
 #include <Arduino.h>
 #include <SparkFun_Extensible_Message_Parser.h>
-#include <stdint.h>
-
-#include "HardwareI2cSlave.h"
-#include "core_debug.h"
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
     sempCustomPreamble, // Custom parser preamble
@@ -106,7 +102,6 @@ int32_t main(void)
                                     parser_prinf_callback);
     if (!custom_parser)
         CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
-    uint8_t buffer[8] = {0x02, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x01, 0x02};
     // Task Create
     while (true) {
         static uint32_t tick = 0;
@@ -120,9 +115,9 @@ int32_t main(void)
                 case SLAVE_MODE_RX: {
                     size_t len = Wire_SLAVE.slave_receive();
                     CORE_DEBUG_PRINTF("Received %d bytes\n", len);
-                    if (len > 0) {
-                        uint8_t i2c_RxBuffer[60];
-                        size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, len);
+                    if (Wire_SLAVE.available()) {
+                        uint8_t i2c_RxBuffer[256] = {0};
+                        size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, sizeof(i2c_RxBuffer));
                         for (int i = 0; i < read_len; i++) {
                             sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
                         }

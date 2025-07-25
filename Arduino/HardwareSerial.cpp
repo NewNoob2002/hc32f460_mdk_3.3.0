@@ -19,12 +19,19 @@ int usart1_write(uint8_t *ch, int len)
         return 0;
     }
     
-    // 检查Serial是否已初始化
-    if (!Serial.is_initialized()) {
-        return 0;  // 如果未初始化，直接返回
-    }
-    
     return Serial.write(ch, len);
+}
+
+void cmb_printf(const char *__restrict __format, ...)
+{
+    char printf_buff[256];
+
+    va_list args;
+    va_start(args, __format);
+    int ret_status = vsnprintf(printf_buff, sizeof(printf_buff), __format, args);
+    va_end(args);
+    
+    Serial.print(printf_buff);
 }
 #ifdef __cplusplus
 }

@@ -17,7 +17,7 @@ i2c_peripheral_config_t I2C2_config = {
 };
 
 TwoWire Wire(&I2C2_config, PA9, PA8);
-TwoWire Wire_SLAVE(&I2C1_config, PA3, PA4);
+TwoWire Wire_SLAVE(&I2C1_config, PA3, PA2);
 
 #define REG_TO_I2Cx(reg) ((reg == CM_I2C1) ? "I2C1" : (reg == CM_I2C2) ? "I2C2" \
                                                   : (reg == CM_I2C3)   ? "I2C3" \
@@ -194,7 +194,10 @@ size_t TwoWire::slave_transmit(uint8_t *tx_buffer, uint32_t timeout)
     }
     return tx_data_count;
 }
-
+size_t TwoWire::available()
+{
+    return lwrb_get_full(&this->rx_rb_t);
+}
 size_t TwoWire::read(uint8_t *buffer, size_t quantity)
 {
     return lwrb_read(&this->rx_rb_t, buffer, quantity);
