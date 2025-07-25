@@ -2,6 +2,7 @@
  * Include files
  ******************************************************************************/
 #include <Arduino.h>
+#include <MillisTaskManager.h>
 #include <SparkFun_Extensible_Message_Parser.h>
 
 SEMP_PARSE_ROUTINE const customParserTable[] = {
@@ -23,6 +24,7 @@ static float breath_angle                    = 0.0;  // 当前角度
 static const float breath_speed              = 0.05; // 呼吸速度，可调节
 static const uint32_t breath_update_interval = 10;   // 更新间隔(ms)，值越小越丝滑
 
+static MillisTaskManager task_manager;
 // 呼吸灯任务
 // 该任务会周期性更新呼吸灯的PWM值
 static void breath_task()
@@ -75,6 +77,11 @@ void my_callback(void *address)
 {
     CORE_DEBUG_PRINTF("Device %02x is online\n", *((uint8_t *)address));
 }
+
+void loop_task()
+{
+    digitalToggle(PA0);
+}
 int32_t main(void)
 {
     /* Register write enable for some required peripherals. */
@@ -103,13 +110,9 @@ int32_t main(void)
     if (!custom_parser)
         CORE_DEBUG_PRINTF("Failed to initialize the Bt parser");
     // Task Create
+    task_manager.Register(loop_task, 1000);
     while (true) {
-        static uint32_t tick = 0;
-        if (millis() - tick >= 1000) {
-            tick = millis();
-            digitalToggle(PA0);
-            // Wire.scanDeivces(my_callback);
-        }
+        task_manager.Running(millis());
         if (Wire_SLAVE.slave_address_match()) {
             switch (Wire_SLAVE.get_slave_work_mode()) {
                 case SLAVE_MODE_RX: {

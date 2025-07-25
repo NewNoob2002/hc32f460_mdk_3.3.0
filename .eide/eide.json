@@ -469,8 +469,7 @@
       "excludeList": [
         "<virtual_root>/platform/newlibc/newlib.s",
         "<virtual_root>/Arduino/libraries/slave_i2c/soft_slave_i2c.cpp",
-        "<virtual_root>/platform/ll_drivers/hc32_ll_icg.c",
-        "<virtual_root>/FreeRTOS"
+        "<virtual_root>/platform/ll_drivers/hc32_ll_icg.c"
       ],
       "toolchain": "AC6",
       "compileConfig": {
@@ -649,7 +648,8 @@
           "HC32F460",
           "USE_DDL_DRIVER",
           "__DEBUG",
-          "__CORE_DEBUG"
+          "__CORE_DEBUG",
+          "USE_FREERTOS"
         ]
       },
       "builderOptions": {
