@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>HC32F460,USE_DDL_DRIVER,__DEBUG,__CORE_DEBUG</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\Parser;..\..\libraries\lwmem\src\include;..\..\libraries\lwrb\src\include;..\..\Arduino\drivers\i2c</IncludePath>
+              <IncludePath>..\..\config;..\..\user\inc;..\..\platform\cmsis\Include;..\..\platform\cmsis\Device\HDSC\hc32f4xx\Include;..\..\platform\core;..\..\platform\ll_drivers\hc32_ll_driver\inc;..\..\platform\ll_drivers\bsp\ev_hc32f460_lqfp100_v2;..\..\Arduino;..\..\Arduino\avr;..\..\Arduino\variants\hc32f460xx;..\..\Arduino\drivers\i2c;..\..\libraries\FreeRTOS;..\..\libraries\FreeRTOS\include;..\..\libraries\FreeRTOS\portable\GCC\ARM_CM4F;..\..\libraries\Parser;..\..\libraries\lwmem\src\include;..\..\libraries\lwrb\src\include;..\..\libraries\MillisTaskManager</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -962,6 +962,16 @@
               <FileName>lwrb_ex.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\libraries\lwrb\src\lwrb\lwrb_ex.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Libaries/MillisTaskManager</GroupName>
+          <Files>
+            <File>
+              <FileName>MillisTaskManager.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\..\libraries\MillisTaskManager\MillisTaskManager.cpp</FilePath>
             </File>
           </Files>
         </Group>

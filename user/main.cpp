@@ -50,7 +50,6 @@ uint8_t i2c_TxBuffer[512];
 
 static void customParserCallback(SEMP_PARSE_STATE *parse, uint16_t type)
 {
-    Wire_SLAVE.slave_change_mode(SLAVE_MODE_TX);
     // 处理自定义解析器的回调
     SEMP_CUSTOM_HEADER *messageHeader = (SEMP_CUSTOM_HEADER *)parse->buffer;
     uint16_t messageId                = messageHeader->messageId;
@@ -94,8 +93,8 @@ int32_t main(void)
     pinMode(PA0, OUTPUT);
     Wire.begin();
 
-    Wire_SLAVE.setSlaveAddress(0x11);
-    Wire_SLAVE.begin(400 * 1000);
+    Wire_Slave.setSlaveAddress(0x11);
+    Wire_Slave.begin(400 * 1000);
     memset(i2c_TxBuffer, 0xff, sizeof(i2c_TxBuffer));
     custom_parser = sempBeginParser(customParserTable,
                                     customParserCount,
@@ -113,26 +112,41 @@ int32_t main(void)
     task_manager.Register(loop_task, 1000);
     while (true) {
         task_manager.Running(millis());
-        if (Wire_SLAVE.slave_address_match()) {
-            switch (Wire_SLAVE.get_slave_work_mode()) {
-                case SLAVE_MODE_RX: {
-                    size_t len = Wire_SLAVE.slave_receive();
-                    CORE_DEBUG_PRINTF("Received %d bytes\n", len);
-                    if (Wire_SLAVE.available()) {
-                        uint8_t i2c_RxBuffer[256] = {0};
-                        size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, sizeof(i2c_RxBuffer));
-                        for (int i = 0; i < read_len; i++) {
-                            sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
-                        }
-                    }
-                    break;
-                }
-                case SLAVE_MODE_TX: {
-                    size_t send_len = Wire_SLAVE.slave_transmit(i2c_TxBuffer);
-                    Wire_SLAVE.slave_change_mode(SLAVE_MODE_RX);
-                    CORE_DEBUG_PRINTF("send Bytes:%d\n", send_len);
+        if (Wire_Slave.slave_address_match()) {
+            size_t len = Wire_Slave.slave_communicate(i2c_TxBuffer);
+            if (Wire_Slave.get_slave_work_mode() == SLAVE_MODE_RX) {
+                CORE_DEBUG_PRINTF("Received %d bytes\n", len);
+            } else {
+                CORE_DEBUG_PRINTF("Send %d bytes\n", len);
+            }
+            if (Wire_Slave.available()) {
+                uint8_t i2c_RxBuffer[256];
+                size_t read_len = Wire_Slave.read(i2c_RxBuffer, sizeof(i2c_RxBuffer));
+                for (int i = 0; i < read_len; i++) {
+                    sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
                 }
             }
         }
+        // if (Wire_SLAVE.slave_address_match()) {
+        //     switch (Wire_SLAVE.get_slave_work_mode()) {
+        //         case SLAVE_MODE_RX: {
+        //             size_t len = Wire_SLAVE.slave_receive();
+        //             CORE_DEBUG_PRINTF("Received %d bytes\n", len);
+        //             if (Wire_SLAVE.available()) {
+        //                 uint8_t i2c_RxBuffer[256] = {0};
+        //                 size_t read_len = Wire_SLAVE.read(i2c_RxBuffer, sizeof(i2c_RxBuffer));
+        //                 for (int i = 0; i < read_len; i++) {
+        //                     sempParseNextByte(custom_parser, i2c_RxBuffer[i]);
+        //                 }
+        //             }
+        //             break;
+        //         }
+        //         case SLAVE_MODE_TX: {
+        //             size_t send_len = Wire_SLAVE.slave_transmit(i2c_TxBuffer);
+        //             Wire_SLAVE.slave_change_mode(SLAVE_MODE_RX);
+        //             CORE_DEBUG_PRINTF("send Bytes:%d\n", send_len);
+        //         }
+        //     }
+        // }
     }
 }

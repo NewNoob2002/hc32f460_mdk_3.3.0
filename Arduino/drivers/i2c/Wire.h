@@ -70,6 +70,7 @@ public:
     bool slave_address_match();
     size_t slave_receive(uint32_t timeout = WIRE_TIMEOUT);
     size_t slave_transmit(uint8_t *data, uint32_t timeout = WIRE_TIMEOUT);
+    size_t slave_communicate(uint8_t *data, uint32_t timeout = WIRE_TIMEOUT);
     void slave_change_mode(slave_work_mode_t mode)
     {
         this->slave_workMode = mode;
@@ -107,4 +108,4 @@ private:
 };
 
 extern TwoWire Wire;
-extern TwoWire Wire_SLAVE;
+extern TwoWire Wire_Slave;

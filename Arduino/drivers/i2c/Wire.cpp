@@ -17,7 +17,7 @@ i2c_peripheral_config_t I2C2_config = {
 };
 
 TwoWire Wire(&I2C2_config, PA9, PA8);
-TwoWire Wire_SLAVE(&I2C1_config, PA3, PA2);
+TwoWire Wire_Slave(&I2C1_config, PA3, PA2);
 
 #define REG_TO_I2Cx(reg) ((reg == CM_I2C1) ? "I2C1" : (reg == CM_I2C2) ? "I2C2" \
                                                   : (reg == CM_I2C3)   ? "I2C3" \
@@ -79,12 +79,13 @@ void TwoWire::begin(uint32_t clockFreq)
 
     if (this->enableSlave) {
         I2C_SlaveAddrConfig(this->_config->register_base, I2C_ADDR0, I2C_ADDR_7BIT, this->slave_address);
+        WIRE_DEBUG_PRINTF("I2c init success, in mode: slave, scl pin: %d, sda pin: %d, slave address: 0x%02x\n",
+                          this->_scl_pin, this->_sda_pin, this->slave_address);
     } else {
         I2C_BusWaitCmd(this->_config->register_base, ENABLE);
+        WIRE_DEBUG_PRINTF("I2c init success, in mode: master, scl pin: %d, sda pin: %d\n", this->_scl_pin, this->_sda_pin);
     }
-
     this->isInitliased = true;
-    WIRE_DEBUG_PRINTF("I2c init success, in mode: %s\n", this->enableSlave ? "slave" : "master");
 }
 
 void TwoWire::end()
@@ -193,6 +194,49 @@ size_t TwoWire::slave_transmit(uint8_t *tx_buffer, uint32_t timeout)
         return 0;
     }
     return tx_data_count;
+}
+
+size_t TwoWire::slave_communicate(uint8_t *tx_buffer, uint32_t timeout)
+{
+    int32_t i32Ret         = LL_ERR;
+    uint16_t tx_data_count = 0;
+    uint16_t rx_data_count = 0;
+    I2C_ClearStatus(this->_config->register_base, I2C_CLR_SLADDR0FCLR);
+    if (SET == I2C_GetStatus(this->_config->register_base, I2C_FLAG_TRA)) {
+        slave_workMode = SLAVE_MODE_TX;
+        while (I2C_GetStatus(this->_config->register_base, I2C_FLAG_STOP) == RESET) {
+            i32Ret = I2C_WaitStatus(this->_config->register_base, I2C_FLAG_TX_EMPTY, SET, timeout);
+            if (i32Ret == LL_OK) {
+                /* write data to register */
+                uint8_t ch = *tx_buffer++;
+                I2C_WriteData(this->_config->register_base, ch);
+                if (I2C_GetStatus(this->_config->register_base, I2C_FLAG_NACKF) == SET) {
+                    break;
+                }
+                tx_data_count++;
+            }
+        }
+        I2C_Cmd(this->_config->register_base, DISABLE);
+        return tx_data_count;
+    } else {
+        slave_workMode = SLAVE_MODE_RX;
+        while (I2C_GetStatus(this->_config->register_base, I2C_FLAG_STOP) == RESET) {
+            i32Ret = I2C_WaitStatus(this->_config->register_base, I2C_FLAG_RX_FULL, SET, timeout);
+            I2C_AckConfig(this->_config->register_base, I2C_ACK);
+            if (i32Ret == LL_OK) {
+                /* read data from register */
+                uint8_t ch = I2C_ReadData(this->_config->register_base);
+                rx_data_count += lwrb_write(&this->rx_rb_t, &ch, 1);
+            }
+            // else {
+            //     I2C_AckConfig(this->_config->register_base, I2C_ACK);
+            //     break;
+            // }
+        };
+        I2C_Cmd(this->_config->register_base, DISABLE);
+        return rx_data_count;
+    }
+    return 0;
 }
 size_t TwoWire::available()
 {
